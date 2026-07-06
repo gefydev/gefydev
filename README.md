@@ -19,7 +19,7 @@ Hey! I'm **Genaro Febbo Yapur**, a software developer from Buenos Aires, Argenti
 
 <br/>
 
-### 💻 Stack Tecnológico
+### 💻 Tech stack
 
 <div align="center">
   <img src="https://skillicons.dev/icons?i=ts,js,astro,react,nodejs,express,html,css,rust,git,github,bash,linux,vite&theme=dark" alt="My Skills" />
