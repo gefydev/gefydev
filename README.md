@@ -62,7 +62,7 @@ Hey! I'm **Genaro Febbo Yapur**, a software developer from Buenos Aires, Argenti
   <a href="https://www.linkedin.com/in/genadev">
     <img style="border-radius:6px" src="https://custom-icon-badges.demolab.com/badge/LinkedIn-1a1b27?style=for-the-badge&logo=linkedin-white&logoColor=7AA2F7" alt="LinkedIn" />
   </a>
-  <a href="mailto:gena@comidolar.com.ar">
+  <a href="mailto:hi@gefy.dev">
     <img style="border-radius:6px" src="https://img.shields.io/badge/Email-1a1b27?style=for-the-badge&logo=gmail&logoColor=7AA2F7" alt="Email" />
   </a>
 </div>
