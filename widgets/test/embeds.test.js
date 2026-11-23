@@ -122,6 +122,8 @@ test('workflow: acciones fijadas por SHA, un solo permiso, sin PAT y checkouts s
     assert.ok(comment, `${ref} sin etiqueta de version`);
   }
   assert.doesNotMatch(y, /PROFILE_STATS_TOKEN/);
+  assert.doesNotMatch(y, /feat\/profile-widgets/);
+  assert.match(y, /push:\n    branches:\n      - main\n\npermissions|push:\n    branches:\n      - main\n\n/);
   assert.equal((y.match(/persist-credentials: false/g) || []).length, 2);
   assert.match(y, /permissions:\n  contents: write\n/);
   assert.equal((y.match(/^\s{2,}\w+: (read|write)$/gm) || []).length, 1);
