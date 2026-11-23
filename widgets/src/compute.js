@@ -45,13 +45,13 @@ export function computeStreak(days = []) {
   return { total, firstDate: dates[0], lastDate, current, longest };
 }
 
-export function computeLanguages(repos = [], { top = 6, excludeRepos = [], excludeLanguages = [], includePrivate = 'off' } = {}) {
+export function computeLanguages(repos = [], { top = 6, excludeRepos = [], excludeLanguages = [] } = {}) {
   const skipRepo = new Set(excludeRepos.map((s) => s.toLowerCase()));
   const skipLang = new Set(excludeLanguages.map((s) => s.toLowerCase()));
   const acc = new Map();
   for (const r of repos) {
     if (!r || r.isFork) continue;
-    if (r.isPrivate && includePrivate === 'off') continue;
+    if (r.isPrivate) continue;
     if (skipRepo.has(String(r.name).toLowerCase())) continue;
     for (const e of r.languages?.edges || []) {
       const name = e?.node?.name;
@@ -77,42 +77,43 @@ export function computeLanguages(repos = [], { top = 6, excludeRepos = [], exclu
 
 const stateOf = (pr) => (pr.merged || pr.state === 'MERGED' ? 'merged' : pr.state === 'OPEN' ? 'open' : 'closed');
 
-export function groupPullRequests(prs = [], { login, includePrivate = 'off', maxRepos = 8, lastPerRepo = 3 } = {}) {
+export function groupPullRequests(prs = [], { login, maxRepos = 6, lastPerRepo = 3 } = {}) {
   const counts = () => ({ total: 0, merged: 0, open: 0, closed: 0 });
-  const totals = { ...counts(), external: counts(), own: counts() };
-  const priv = counts();
+  const external = counts();
+  const own = counts();
   const byRepo = new Map();
   const me = String(login || '').toLowerCase();
   for (const pr of prs) {
     const repo = pr?.repository;
-    if (!repo?.nameWithOwner) continue;
+    if (!repo?.nameWithOwner || repo.isPrivate) continue;
     const st = stateOf(pr);
-    if (repo.isPrivate) {
-      priv.total += 1;
-      priv[st] += 1;
-      continue;
-    }
-    const own = String(repo.owner?.login || repo.nameWithOwner.split('/')[0]).toLowerCase() === me;
-    for (const bucket of [totals, own ? totals.own : totals.external]) {
-      bucket.total += 1;
-      bucket[st] += 1;
-    }
-    const e = byRepo.get(repo.nameWithOwner) || { repo: repo.nameWithOwner, url: repo.url || `https://github.com/${repo.nameWithOwner}`, stars: repo.stargazerCount || 0, own, isFork: Boolean(repo.isFork), ...counts(), prs: [] };
+    const [owner, name] = repo.nameWithOwner.split('/');
+    const isOwn = String(repo.owner?.login || owner).toLowerCase() === me;
+    const bucket = isOwn ? own : external;
+    bucket.total += 1;
+    bucket[st] += 1;
+    if (isOwn) continue;
+    const e = byRepo.get(repo.nameWithOwner) || {
+      owner: repo.owner?.login || owner,
+      name: name || repo.nameWithOwner,
+      language: repo.primaryLanguage?.name || null,
+      langColor: repo.primaryLanguage?.color || null,
+      stars: repo.stargazerCount ?? null,
+      avatarUrl: repo.owner?.avatarUrl || null,
+      ...counts(),
+      prs: []
+    };
     e.total += 1;
     e[st] += 1;
-    e.prs.push({ number: pr.number, title: String(pr.title ?? ''), state: st, draft: Boolean(pr.isDraft), createdAt: pr.createdAt, url: pr.url || null });
+    e.prs.push({ n: pr.number, title: String(pr.title ?? ''), state: st, at: pr.createdAt });
     byRepo.set(repo.nameWithOwner, e);
   }
-  const repos = [...byRepo.values()]
-    .map((e) => ({ ...e, last: e.prs.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))).slice(0, lastPerRepo), prs: undefined }))
-    .sort((a, b) => b.total - a.total || b.merged - a.merged || a.repo.localeCompare(b.repo));
-  return {
-    totals,
-    repoCount: repos.length,
-    repos: repos.slice(0, Math.max(0, maxRepos)),
-    hiddenRepos: Math.max(0, repos.length - Math.max(0, maxRepos)),
-    private: includePrivate === 'aggregate' ? priv : null
-  };
+  const newest = (e) => e.prs.reduce((m, p) => (String(p.at) > m ? String(p.at) : m), '');
+  const all = [...byRepo.values()]
+    .map((e) => ({ ...e, recent: [...e.prs].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, lastPerRepo), newest: newest(e) }))
+    .sort((a, b) => b.merged - a.merged || b.newest.localeCompare(a.newest) || b.total - a.total || `${a.owner}/${a.name}`.localeCompare(`${b.owner}/${b.name}`))
+    .map(({ prs: _p, newest: _n, ...rest }) => rest);
+  return { external, own, reposTotal: all.length, repos: all.slice(0, Math.max(0, maxRepos)) };
 }
 
 export function computeStats({ user, repos = [], prSummary, streak, excludeRepos = [] }) {
@@ -131,7 +132,8 @@ export function computeStats({ user, repos = [], prSummary, streak, excludeRepos
     reviews: cc.totalPullRequestReviewContributions ?? 0,
     issues: user?.issues?.totalCount ?? 0,
     contributedTo: user?.repositoriesContributedTo?.totalCount ?? 0,
-    prs: prSummary?.totals || { total: 0, merged: 0, open: 0, closed: 0 },
+    prs: prSummary?.external || { total: 0, merged: 0, open: 0, closed: 0 },
+    prsOwn: prSummary?.own?.total ?? 0,
     contributionsTotal: streak?.total ?? 0
   };
 }

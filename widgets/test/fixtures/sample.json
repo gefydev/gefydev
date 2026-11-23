@@ -1,0 +1,86 @@
+{
+  "_nota": "DATOS DE EJEMPLO inventados para el mockup. Este archivo es también el contrato de datos: Turing debe producir un JSON con esta forma desde GraphQL.",
+  "now": "2026-11-23T12:00:00Z",
+  "profile": {
+    "name": "GefyDev",
+    "login": "gefydev",
+    "tagline": "Full-Stack Developer • TypeScript and Modern Web",
+    "phrases": [
+      "Astro, React & TypeScript specialist",
+      "Modern, scalable & accessible platforms",
+      "Open-source enthusiast",
+      "Software craftsman 🧩"
+    ],
+    "links": { "linkedin": "in/genadev", "site": "gefy.dev", "email": "hi@gefy.dev" },
+    "avatarDataUri": null
+  },
+  "stats": { "year": 2026, "commits": 1284, "prs": 83, "issues": 21, "stars": 67, "contributedTo": 19 },
+  "languages": [
+    { "name": "TypeScript", "pct": 52.4, "color": "#3178c6" },
+    { "name": "JavaScript", "pct": 17.8, "color": "#f1e05a" },
+    { "name": "Astro", "pct": 11.2, "color": "#ff5a03" },
+    { "name": "CSS", "pct": 8.1, "color": "#663399" },
+    { "name": "Rust", "pct": 5.9, "color": "#dea584" },
+    { "name": "Shell", "pct": 2.9, "color": "#89e051" },
+    { "name": "Other", "pct": 1.7, "color": "#8b93ad" }
+  ],
+  "streak": {
+    "total": 1284, "totalFrom": "2026-01-01", "totalTo": "2026-11-23",
+    "current": 12, "currentFrom": "2026-11-12", "currentTo": "2026-11-23",
+    "longest": 47, "longestFrom": "2026-03-03", "longestTo": "2026-04-18"
+  },
+  "stack": [
+    { "slug": "typescript", "name": "TypeScript", "kind": "Language" },
+    { "slug": "javascript", "name": "JavaScript", "kind": "Language" },
+    { "slug": "rust", "name": "Rust", "kind": "Learning" },
+    { "slug": "astro", "name": "Astro", "kind": "Framework" },
+    { "slug": "react", "name": "React", "kind": "Library" },
+    { "slug": "nextdotjs", "name": "Next.js", "kind": "Framework" },
+    { "slug": "tailwindcss", "name": "Tailwind", "kind": "Styling" },
+    { "slug": "vite", "name": "Vite", "kind": "Tooling" },
+    { "slug": "nodedotjs", "name": "Node.js", "kind": "Runtime" },
+    { "slug": "express", "name": "Express", "kind": "Backend" },
+    { "slug": "postgresql", "name": "PostgreSQL", "kind": "Database" },
+    { "slug": "mongodb", "name": "MongoDB", "kind": "Database" },
+    { "slug": "git", "name": "Git", "kind": "Tooling" },
+    { "slug": "github", "name": "GitHub", "kind": "Platform" },
+    { "slug": "docker", "name": "Docker", "kind": "DevOps" },
+    { "slug": "linux", "name": "Linux", "kind": "OS" }
+  ],
+  "prs": {
+    "total": 83, "merged": 61, "open": 4, "closed": 18,
+    "reposTotal": 14,
+    "repos": [
+      { "owner": "acme-labs", "name": "ui-kit", "language": "TypeScript", "langColor": "#3178c6", "stars": 1240, "avatarDataUri": null, "total": 23, "merged": 14, "open": 2, "closed": 7,
+        "recent": [
+          { "n": 482, "title": "feat(button): add loading state and aria-busy", "state": "merged", "at": "2026-11-21T10:00:00Z" },
+          { "n": 475, "title": "fix(tooltip): flip placement near viewport edge", "state": "open", "at": "2026-11-18T10:00:00Z" },
+          { "n": 461, "title": "chore: bump vite to 7", "state": "closed", "at": "2026-11-02T10:00:00Z" } ] },
+      { "owner": "northwind", "name": "astro-blog-starter", "language": "Astro", "langColor": "#ff5a03", "stars": 860, "avatarDataUri": null, "total": 17, "merged": 13, "open": 1, "closed": 3,
+        "recent": [
+          { "n": 233, "title": "docs: clarify content collections setup", "state": "merged", "at": "2026-11-20T10:00:00Z" },
+          { "n": 229, "title": "feat: RSS feed with per-tag filters", "state": "open", "at": "2026-11-11T10:00:00Z" },
+          { "n": 218, "title": "fix(i18n): fallback to default locale", "state": "merged", "at": "2026-10-30T10:00:00Z" } ] },
+      { "owner": "orbit-rs", "name": "orbit", "language": "Rust", "langColor": "#dea584", "stars": 3410, "avatarDataUri": null, "total": 12, "merged": 9, "open": 0, "closed": 3,
+        "recent": [
+          { "n": 1190, "title": "perf: avoid clone in hot path of the scheduler", "state": "merged", "at": "2026-11-15T10:00:00Z" },
+          { "n": 1176, "title": "refactor: split config parsing into its own crate", "state": "merged", "at": "2026-11-03T10:00:00Z" },
+          { "n": 1164, "title": "feat: --json output flag", "state": "closed", "at": "2026-10-12T10:00:00Z" } ] },
+      { "owner": "pixel-forge", "name": "design-tokens", "language": "TypeScript", "langColor": "#3178c6", "stars": 410, "avatarDataUri": null, "total": 9, "merged": 7, "open": 1, "closed": 1,
+        "recent": [
+          { "n": 96, "title": "feat: export tokens as CSS layers", "state": "open", "at": "2026-11-19T10:00:00Z" },
+          { "n": 91, "title": "fix: contrast of muted text in dark theme", "state": "merged", "at": "2026-11-08T10:00:00Z" },
+          { "n": 87, "title": "docs: add migration guide", "state": "merged", "at": "2026-09-27T10:00:00Z" } ] },
+      { "owner": "kestrel-js", "name": "express-kit", "language": "JavaScript", "langColor": "#f1e05a", "stars": 215, "avatarDataUri": null, "total": 6, "merged": 4, "open": 0, "closed": 2,
+        "recent": [
+          { "n": 58, "title": "fix: handle aborted requests in body parser", "state": "merged", "at": "2026-10-22T10:00:00Z" },
+          { "n": 55, "title": "test: cover error middleware", "state": "merged", "at": "2026-10-05T10:00:00Z" },
+          { "n": 51, "title": "feat: typed route helpers", "state": "closed", "at": "2026-08-14T10:00:00Z" } ] },
+      { "owner": "lumen-ui", "name": "docs", "language": "MDX", "langColor": "#fcb32c", "stars": 98, "avatarDataUri": null, "total": 5, "merged": 4, "open": 0, "closed": 1,
+        "recent": [
+          { "n": 312, "title": "docs: fix broken anchor in theming page", "state": "merged", "at": "2026-09-30T10:00:00Z" },
+          { "n": 301, "title": "docs: add keyboard navigation notes", "state": "merged", "at": "2025-12-19T10:00:00Z" },
+          { "n": 290, "title": "docs: typo in install section", "state": "closed", "at": "2025-11-02T10:00:00Z" } ] }
+    ]
+  }
+}

@@ -54,7 +54,7 @@ test('lenguajes: agrega, ordena, agrupa el resto en Other y excluye forks y priv
   assert.equal(l.items[0].bytes, 900);
   assert.equal(l.items.at(-1).count, 3);
   assert.ok(Math.abs(l.items.reduce((s, i) => s + i.percent, 0) - 100) < 1e-9);
-  assert.equal(computeLanguages(repos, { top: 10, includePrivate: 'aggregate' }).items.some((i) => i.name === 'Zig'), true);
+  assert.equal(computeLanguages(repos, { top: 10 }).items.some((i) => i.name === 'Zig'), false);
   assert.equal(computeLanguages(repos, { top: 10, excludeRepos: ['A'], excludeLanguages: ['rust'] }).items.some((i) => i.name === 'Rust'), false);
 });
 
@@ -64,46 +64,52 @@ test('lenguajes: vacio, bytes invalidos y nombres repetidos', () => {
   assert.equal(computeLanguages([null, {}, repo('x', [[undefined, 5]])]).items.length, 0);
 });
 
-test('PRs: totales, propios vs ajenos, privados nunca en los totales', () => {
-  const own = { nameWithOwner: 'me/own', isPrivate: false, isFork: false, stargazerCount: 2, owner: { login: 'Me' } };
-  const ext = { nameWithOwner: 'x/ext', isPrivate: false, isFork: false, stargazerCount: 900, owner: { login: 'x' } };
-  const priv = { nameWithOwner: 'me/secret', isPrivate: true, isFork: false, stargazerCount: 0, owner: { login: 'me' } };
+const mkRepo = (nameWithOwner, extra = {}) => ({ nameWithOwner, isPrivate: false, isFork: false, stargazerCount: 7, url: `https://github.com/${nameWithOwner}`, primaryLanguage: { name: 'Rust', color: '#dea584' }, owner: { login: nameWithOwner.split('/')[0], avatarUrl: 'https://avatars.githubusercontent.com/u/1?s=60' }, ...extra });
+
+test('PRs: el titular es solo repos ajenos; los propios van aparte y los privados no cuentan en nada', () => {
+  const own = mkRepo('Me/own');
+  const ext = mkRepo('x/ext', { stargazerCount: 900 });
+  const priv = mkRepo('me/secret', { isPrivate: true });
   const prs = [
     pr({ number: 1, repository: own }), pr({ number: 2, repository: own, state: 'OPEN', merged: false }),
     pr({ number: 3, repository: ext }), pr({ number: 4, repository: ext, state: 'CLOSED', merged: false }),
     pr({ number: 5, repository: priv }), pr({ number: 6, repository: priv, state: 'OPEN', merged: false })
   ];
-  const off = groupPullRequests(prs, { login: 'me' });
-  assert.deepEqual([off.totals.total, off.totals.merged, off.totals.open, off.totals.closed], [4, 2, 1, 1]);
-  assert.deepEqual([off.totals.external.total, off.totals.own.total], [2, 2]);
-  assert.equal(off.private, null);
-  assert.equal(JSON.stringify(off).includes('secret'), false);
-  const agg = groupPullRequests(prs, { login: 'me', includePrivate: 'aggregate' });
-  assert.deepEqual(agg.totals, off.totals);
-  assert.deepEqual([agg.private.total, agg.private.merged, agg.private.open], [2, 1, 1]);
-  assert.equal(JSON.stringify(agg).includes('secret'), false);
+  const g = groupPullRequests(prs, { login: 'me' });
+  assert.deepEqual([g.external.total, g.external.merged, g.external.open, g.external.closed], [2, 1, 0, 1]);
+  assert.deepEqual([g.own.total, g.own.merged, g.own.open], [2, 1, 1]);
+  assert.equal(g.reposTotal, 1);
+  assert.deepEqual(g.repos.map((r) => r.name), ['ext']);
+  assert.equal(g.repos[0].owner, 'x');
+  assert.equal(g.repos[0].language, 'Rust');
+  assert.equal(g.repos[0].stars, 900);
+  assert.equal(JSON.stringify(g).includes('secret'), false);
+  assert.equal(JSON.stringify(g).includes('own'), true);
 });
 
-test('PRs: por repo ordenado, ultimos 3 por fecha, limite de repos y repos ocultos', () => {
-  const mk = (name, n, stars = 0) => Array.from({ length: n }, (_, i) => pr({ number: i + 1, title: `t${i}`, createdAt: `2026-01-${String(i + 1).padStart(2, '0')}T00:00:00Z`, repository: { nameWithOwner: name, isPrivate: false, isFork: false, stargazerCount: stars, owner: { login: name.split('/')[0] } } }));
-  const prs = [...mk('a/one', 5), ...mk('b/two', 7), ...mk('c/three', 1)];
-  const g = groupPullRequests(prs, { login: 'me', maxRepos: 2, lastPerRepo: 3 });
-  assert.deepEqual(g.repos.map((r) => r.repo), ['b/two', 'a/one']);
-  assert.equal(g.hiddenRepos, 1);
-  assert.equal(g.repoCount, 3);
-  assert.deepEqual(g.repos[0].last.map((p) => p.number), [7, 6, 5]);
-  assert.equal(g.repos[0].total, 7);
+test('PRs: repos ordenados por merged desc (desempate por PR mas reciente), maximo 6, ultimos 3 por fecha', () => {
+  const mk = (name, merged, closed, newestDay) => [
+    ...Array.from({ length: merged }, (_, i) => pr({ number: i + 1, createdAt: `2026-01-${String(newestDay - i > 0 ? newestDay - i : 1).padStart(2, '0')}T00:00:00Z`, repository: mkRepo(name) })),
+    ...Array.from({ length: closed }, (_, i) => pr({ number: 100 + i, state: 'CLOSED', merged: false, createdAt: '2026-01-01T00:00:00Z', repository: mkRepo(name) }))
+  ];
+  const prs = [...mk('a/many-closed', 2, 9, 5), ...mk('b/most-merged', 5, 0, 10), ...mk('c/tie-new', 2, 0, 20), ...mk('d/tie-old', 2, 0, 3), ...mk('e/one', 1, 0, 2), ...mk('f/two', 1, 1, 2), ...mk('g/three', 1, 0, 1), ...mk('h/four', 1, 0, 1)];
+  const g = groupPullRequests(prs, { login: 'me', maxRepos: 6 });
+  assert.deepEqual(g.repos.slice(0, 4).map((r) => r.name), ['most-merged', 'tie-new', 'many-closed', 'tie-old']);
+  assert.equal(g.repos.length, 6);
+  assert.equal(g.reposTotal, 8);
+  assert.deepEqual(g.repos[0].recent.map((p) => p.n), [1, 2, 3]);
+  assert.equal(g.repos[0].recent.length, 3);
   assert.equal(groupPullRequests(prs, { login: 'me', maxRepos: 0 }).repos.length, 0);
 });
 
-test('PRs: lista vacia, entradas invalidas y drafts', () => {
+test('PRs: lista vacia, entradas invalidas y repos propios con otra capitalizacion', () => {
   const g = groupPullRequests([], { login: 'me' });
-  assert.equal(g.totals.total, 0);
+  assert.equal(g.external.total, 0);
   assert.deepEqual(g.repos, []);
-  assert.equal(groupPullRequests([null, {}, { repository: {} }], { login: 'me' }).totals.total, 0);
-  const d = groupPullRequests([pr({ state: 'OPEN', merged: false, isDraft: true })], { login: 'me' });
-  assert.equal(d.repos[0].last[0].draft, true);
-  assert.equal(d.totals.open, 1);
+  assert.equal(groupPullRequests([null, {}, { repository: {} }], { login: 'me' }).external.total, 0);
+  const g2 = groupPullRequests([pr({ repository: mkRepo('ME/Mine') })], { login: 'me' });
+  assert.equal(g2.own.total, 1);
+  assert.equal(g2.external.total, 0);
 });
 
 test('stats: usa repos publicos no excluidos y tolera datos faltantes', () => {

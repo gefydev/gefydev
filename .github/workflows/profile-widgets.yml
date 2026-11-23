@@ -20,11 +20,17 @@ jobs:
   build:
     name: generate-and-publish
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        continue-on-error: true
+        with:
+          ref: widgets-output
+          path: previous
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
 
@@ -32,10 +38,27 @@ jobs:
         working-directory: widgets
         run: npm test
 
+      - name: Generate 3D contribution graph
+        id: threed
+        continue-on-error: true
+        uses: yoshi389111/github-profile-3d-contrib@7d95e7d4cdc028dd1e1cbd957d65f35efb12ae39 # v0.9.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+
       - name: Generate widgets
         env:
           PROFILE_STATS_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN || secrets.GITHUB_TOKEN }}
         run: node widgets/src/index.js --out dist
+
+      - name: Collect 3D graphs (keep the previous ones if generation failed)
+        run: |
+          mkdir -p dist/3d
+          for f in profile-night-view.svg profile-green.svg; do
+            if [ -s "profile-3d-contrib/$f" ]; then cp "profile-3d-contrib/$f" "dist/3d/$f"
+            elif [ -s "previous/3d/$f" ]; then cp "previous/3d/$f" "dist/3d/$f"; echo "::warning::kept previous $f"
+            fi
+          done
 
       - name: Publish to the widgets-output branch
         env:

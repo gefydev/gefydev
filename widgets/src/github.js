@@ -49,6 +49,7 @@ const USER_QUERY = `
 query($login: String!, $after: String) {
   user(login: $login) {
     login name createdAt
+    avatarUrl(size: 96)
     followers { totalCount }
     issues { totalCount }
     repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, PULL_REQUEST, ISSUE, REPOSITORY]) { totalCount }
@@ -71,7 +72,7 @@ query($login: String!, $after: String) {
       pageInfo { hasNextPage endCursor }
       nodes {
         number title state merged isDraft createdAt mergedAt closedAt url
-        repository { nameWithOwner isPrivate isFork stargazerCount url owner { login } }
+        repository { nameWithOwner isPrivate isFork stargazerCount url primaryLanguage { name color } owner { login avatarUrl(size: 60) } }
       }
     }
   }
