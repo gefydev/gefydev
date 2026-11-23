@@ -43,6 +43,10 @@ Todos los widgets salen de la misma consulta y de las mismas funciones de `compu
 
 `.github/workflows/profile-widgets.yml` corre cada 6 h, a mano (`workflow_dispatch`) y en cada push a `main`: tests, 3D (`github-profile-3d-contrib` fijado por SHA), widgets, y publica todo como un único commit en la rama `widgets-output` (se reescribe cada vez: el historial de `main` no crece). Si la generación del 3D falla, se conservan los SVG anteriores. El README referencia `https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/...`. `snake.yml` sigue publicando en la rama `output`, con las acciones fijadas por SHA. El cron solo se activa cuando el workflow está en la rama por defecto.
 
+## Caché de las imágenes
+
+Medido en github.com con el README de la rama: las imágenes de `raw.githubusercontent.com` del mismo repositorio se cargan **directo desde `raw.githubusercontent.com`, no a través de `camo`** (solo las de terceros, como el contador de visitas, pasan por `camo`). `raw` responde `Cache-Control: max-age=300`, así que un SVG nuevo se ve en el README en unos 5 minutos (más el caché del navegador), contra las 24 h de `max-age=86400` que mandaba `github-readme-stats`. Eso explica el "57" viejo. Verificado en la vista de archivo de la rama; no se pudo verificar en la página de perfil `github.com/gefydev` porque muestra el README de `main`, que este PR no toca.
+
 ## Responsive
 
 En móvil un SVG de 850 px se escala a ~0.4 y el texto queda ilegible, así que hero, stack, prs y streak tienen una variante de 420 px. El README elige con `<picture>` y una media query: `(prefers-color-scheme: dark) and (max-width: 600px)`.
