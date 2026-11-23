@@ -382,7 +382,8 @@ function stack(d, t, opts = {}) {
     o += `<g class="fl${(i % 3) + 1}" style="animation-duration:${6 + (i % 4)}s">${plate(c, it.slug, r1(cx), y + 38, 46)}</g>`;
     const nsz = opts.nameSz || 12.5;
     o += tx(r1(cx), y + 82, trunc(it.name, tileW - (opts.nameSz ? 4 : 10), nsz, { bold: true }), { sz: nsz, w: 700, fill: t.text, anchor: 'middle' });
-    o += tx(r1(cx), y + 98, trunc(it.kind, tileW - 10, 10), { sz: 10, w: 500, fill: t.text3, anchor: 'middle', ls: '.04em' });
+    const ksz = opts.nameSz ? 11 : 10;
+    o += tx(r1(cx), y + 98, trunc(it.kind, tileW - 6, ksz), { sz: ksz, w: 500, fill: t.text3, anchor: 'middle', ls: opts.nameSz ? '.02em' : '.04em' });
   });
   o += sampleTag(c);
   return finish(c, o);
@@ -393,7 +394,7 @@ const stateOf = (t) => ({ merged: { col: t.merged, ic: 'merge', label: 'Merged' 
 
 function prs(d, t, opts = {}) {
   const P = d.prs; const W = opts.W || 850; const now = d.now;
-  const narrow = W < 600; const cols = opts.cols || (narrow ? 1 : 2);
+  const narrow = W < 600; const cols = opts.cols || (narrow ? 1 : 2); const fm = narrow ? 12 : 11; const ft = narrow ? 13 : 12.5;
   const repos = P.repos; const cardW = (W - 64 - (cols - 1) * 12) / cols; const rowH = 40; const empty = P.total === 0;
   const rowsOf = (r) => Math.max(1, r.recent.length);
   const cardH = (r) => 78 + rowsOf(r) * rowH + 6;
@@ -480,11 +481,11 @@ function prs(d, t, opts = {}) {
       else o += tx(x + 56, y + 31, full, { sz: 13.5, w: 700, fill: t.text3 });
       // lenguaje + estrellas
       let mx = x + 56;
-      if (r.language) { o += `<circle cx="${mx + 4}" cy="${y + 47}" r="4" fill="${r.langColor || t.text3}"/>`; const lt = trunc(r.language, 84, 11); o += tx(mx + 13, y + 51, lt, { sz: 11, fill: t.text2 }); mx += 13 + tw(lt, 11) + 12; }
-      if (r.stars != null) { o += icon('star', mx, y + 41, 11, t.fire1); o += tx(mx + 15, y + 51, compact(r.stars), { sz: 11, fill: t.text2, cls: 'n' }); }
+      if (r.language) { o += `<circle cx="${mx + 4}" cy="${y + 47}" r="4" fill="${r.langColor || t.text3}"/>`; const lt = trunc(r.language, 84, fm); o += tx(mx + 13, y + 51, lt, { sz: fm, fill: t.text2 }); mx += 13 + tw(lt, fm) + 12; }
+      if (r.stars != null) { o += icon('star', mx, y + 41, 11, t.fire1); o += tx(mx + 15, y + 51, compact(r.stars), { sz: fm, fill: t.text2, cls: 'n' }); }
       // total + merged
       o += tx(x + cardW - 16, y + 31, `${r.total} ${r.total === 1 ? 'PR' : 'PRs'}`, { sz: 15, w: 800, fill: t.text, anchor: 'end', cls: 'n' });
-      o += tx(x + cardW - 16, y + 49, `${r.merged} merged`, { sz: 11.5, w: 700, fill: r.merged ? t.merged : t.text3, anchor: 'end', cls: 'n' });
+      o += tx(x + cardW - 16, y + 49, `${r.merged} merged`, { sz: narrow ? 12 : 11.5, w: 700, fill: r.merged ? t.merged : t.text3, anchor: 'end', cls: 'n' });
       // mini barra
       const mbw = cardW - 32; const parts = [['merged', r.merged], ['open', r.open], ['closed', r.closed]].filter(([, v]) => v > 0); let bxx = x + 16; const gp = 2; const us = mbw - gp * Math.max(0, parts.length - 1);
       parts.forEach(([k, v]) => { const w = Math.max(4, (v / r.total) * us); o += `<rect x="${r1(bxx)}" y="${y + 62}" width="${r1(w)}" height="4" rx="2" fill="${ST[k].col}"/>`; bxx += w + gp; });
@@ -494,10 +495,10 @@ function prs(d, t, opts = {}) {
         if (i > 0) o += hair(c, x + 16, ry - 3, x + cardW - 16);
         o += icon(st.ic, x + 16, ry + 3, 14, st.col);
         const dateS = rel(p.at, now);
-        const titleMax = cardW - 42 - 16 - tw(dateS, 11) - 26;
-        o += tx(x + 40, ry + 14, trunc(p.title, titleMax, 12.5), { sz: 12.5, w: 500, fill: t.text });
-        o += tx(x + cardW - 16, ry + 14, dateS, { sz: 11, fill: t.text3, anchor: 'end' });
-        o += `<text x="${x + 40}" y="${ry + 30}" class="s" font-size="11" fill="${t.text3}"><tspan fill="${st.col}" font-weight="700">${st.label}</tspan> · #${p.n}</text>`;
+        const titleMax = cardW - 42 - 16 - tw(dateS, fm) - 26;
+        o += tx(x + 40, ry + 14, trunc(p.title, titleMax, ft), { sz: ft, w: 500, fill: t.text });
+        o += tx(x + cardW - 16, ry + 14, dateS, { sz: fm, fill: t.text3, anchor: 'end' });
+        o += `<text x="${x + 40}" y="${ry + 30}" class="s" font-size="${fm}" fill="${t.text3}"><tspan fill="${st.col}" font-weight="700">${st.label}</tspan> · #${p.n}</text>`;
       });
     });
     y += pairH[pi] + 12;
@@ -562,7 +563,7 @@ function streakM(d, t) {
 export const widgets = { hero, stack, stats, langs, streak, prs };
 export const mobileWidgets = {
   hero: heroM,
-  stack: (d, t) => stack(d, t, { W: 420, cols: 4, nameSz: 11 }),
+  stack: (d, t) => stack(d, t, { W: 420, cols: 4, nameSz: 12 }),
   prs: (d, t) => prs(d, t, { W: 420, cols: 1 }),
   streak: streakM
 };
