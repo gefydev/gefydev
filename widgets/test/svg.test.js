@@ -141,9 +141,13 @@ test('racha: el año aparece cuando no es el actual y el total dice desde cuánd
   assert.deepEqual(streakTexts(render('streak', streakData(), 'dark', { mobile: true })), ["Since Sep 21 '20", 'Nov 22 – Present', "Apr 27 – May 9 '24"]);
   const cross = streakData({ longestFrom: '2023-12-28', longestTo: '2024-01-03', currentFrom: '2026-01-01' });
   assert.deepEqual(streakTexts(render('streak', cross, 'light')), ['Since Sep 21, 2020', 'Jan 1 – Present', 'Dec 28, 2023 – Jan 3, 2024']);
-  const m = streakTexts(render('streak', cross, 'light', { mobile: true }));
-  assert.equal(m[2], "Dec 28 '23 – Jan 3 '24");
-  assert.doesNotMatch(m.join(' '), /…/);
+  const mobSvg = render('streak', cross, 'light', { mobile: true });
+  assert.match(mobSvg, />Dec 28 '23 –</);
+  assert.match(mobSvg, />Jan 3 '24</);
+  assert.doesNotMatch(mobSvg, /…/);
+  const sizes = [...mobSvg.matchAll(/<text[^>]*font-size="([\d.]+)"[^>]*>([^<]+)</g)].filter((x) => /^[A-Za-z]/.test(x[2])).map((x) => Number(x[1]));
+  assert.ok(sizes.length > 4);
+  assert.ok(Math.min(...sizes) >= 12, `texto móvil de la racha menor a 12: ${Math.min(...sizes)}`);
   const sameYear = streakData({ longestFrom: '2026-03-03', longestTo: '2026-04-18' });
   assert.equal(streakTexts(render('streak', sameYear, 'dark'))[2], 'Mar 3 – Apr 18');
   for (const t of streakTexts(render('streak', streakData({ totalFrom: null, currentFrom: null, longestFrom: null }), 'dark'))) assert.doesNotMatch(t, /1970|Invalid|NaN/);

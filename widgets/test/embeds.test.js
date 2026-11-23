@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { build, readEmbeds } from '../src/index.js';
-import { parse3d, prepSnake, render, splitTopGroups, THEME_IDS } from '../src/glass.js';
+import { assertSafeEmbed, parse3d, prepSnake, render, splitTopGroups, THEME_IDS } from '../src/glass.js';
 import { assertWellFormed, emptyRaw, mini3d, miniSnake } from './helpers.js';
 
 const cfg = { login: 'me', prs: { maxRepos: 6, lastPerRepo: 3 }, languages: { top: 6, excludeRepos: [], excludeLanguages: [] }, stats: { excludeRepos: [] }, profile: { name: 'Me', tagline: 'Dev', phrases: ['a'], links: {}, stack: [] } };
@@ -137,4 +137,60 @@ test('3d-settings.json: dos salidas con la paleta de marca y 5 niveles', () => {
     assert.equal(x.contribColors.length, 5);
     for (const c of [x.backgroundColor, x.foregroundColor, x.strongColor, x.weakColor, x.radarColor, ...x.contribColors]) assert.match(c, /^#[0-9a-f]{6}$/i);
   }
+});
+
+const HOSTILE = {
+  script: '<script>alert(1)</script>',
+  foreignObject: '<foreignObject width="10" height="10"><div xmlns="http://www.w3.org/1999/xhtml">x</div></foreignObject>',
+  handler: '<rect width="1" height="1" onload="alert(1)"/>',
+  handlerSpaced: '<rect width="1" height="1" onmouseover = "x()"/>',
+  js: '<rect width="1" height="1" fill="javascript:alert(1)"/>',
+  import: '<style>@import url(//evil.example/x.css);</style>',
+  externalUrl: '<rect width="1" height="1" style="fill:url(https://evil.example/p.svg#a)"/>',
+  externalLink: '<text>https://evil.example/pixel</text>',
+  image: '<image width="1" height="1" href="https://evil.example/p.png"/>',
+  use: '<use href="#a"/>',
+  anchor: '<a href="https://evil.example"><rect width="1" height="1"/></a>',
+  dataUri: '<rect width="1" height="1" style="fill:url(data:image/svg+xml;base64,AAAA)"/>'
+};
+
+test('N1: un 3D hostil se rechaza (script, handlers, foreignObject, @import, javascript:, URLs externas, image, use, a, data:)', () => {
+  for (const [name, evil] of Object.entries(HOSTILE)) {
+    const raw = mini3d().replace('</svg>', `${evil}</svg>`).replace('</style><rect', `</style><g>${evil}</g><rect`);
+    const hostileCubes = mini3d().replace('class="cont-top-0"></rect>', `class="cont-top-0"></rect>${evil}`);
+    assert.throws(() => parse3d(hostileCubes), /embebido no permitido/, name);
+    void raw;
+  }
+  const evilStyle = mini3d().replace('</style>', '.x{background:url(https://evil.example/a.png)}</style>');
+  assert.throws(() => parse3d(evilStyle), /URL externa|url\(\)/);
+});
+
+test('N1: una snake hostil se rechaza y las limpias pasan', () => {
+  for (const [name, evil] of Object.entries(HOSTILE)) {
+    const raw = miniSnake().replace('</svg>', `${evil}</svg>`);
+    assert.throws(() => prepSnake(raw, 'dark'), /embebido no permitido/, name);
+  }
+  assert.doesNotThrow(() => prepSnake(miniSnake(), 'dark'));
+  assert.doesNotThrow(() => parse3d(mini3d()));
+  assert.throws(() => assertSafeEmbed('<g onclick="x"/>', 'prueba'), /manejador de eventos/);
+  assert.doesNotThrow(() => assertSafeEmbed('<g class="cont-top-1" transform="translate(1 2)"><animate attributeName="height" values="2.6;12" dur="3s" repeatCount="1"></animate></g>', 'prueba'));
+});
+
+test('N1: un embebido hostil no llega al SVG final: build lo omite con aviso y conserva el resto', () => {
+  const warnings = [];
+  const evil3d = mini3d().replace('class="cont-top-0"></rect>', 'class="cont-top-0"></rect><script>alert(1)</script>');
+  const evilSnake = miniSnake().replace('</svg>', '<rect onload="x()"/></svg>');
+  const r = build(emptyRaw(), cfg, { embeds: { threeD: { dark: evil3d, light: mini3d() }, snake: evilSnake }, warn: (m) => warnings.push(m) });
+  for (const [name, content] of Object.entries(r.files)) if (name.endsWith('.svg')) assert.doesNotMatch(content, /<script|onload=|foreignObject|javascript:|@import/i, name);
+  assert.equal(Object.keys(r.files).filter((n) => /^(3d|snake)-/.test(n)).length, 0);
+  assert.equal(warnings.length, 2);
+  assert.ok(warnings.every((w) => /embebido no permitido/.test(w) && /se conserva el anterior/.test(w)));
+  assert.ok(r.files['hero-dark.svg'] && r.files['prs-dark.svg']);
+});
+
+test('R1: el hero móvil usa un icono "in" legible (>= 12) y nada de texto menor a 12 en las variantes móviles de texto', () => {
+  const d = { ...JSON.parse(fs.readFileSync(new URL('./fixtures/sample.json', import.meta.url), 'utf8')) };
+  const hero = render('hero', d, 'dark', { mobile: true });
+  assert.match(hero, /font-size="12" font-weight="800"[^>]*>in</);
+  assert.doesNotMatch(hero, /font-size="9\.5"/);
 });

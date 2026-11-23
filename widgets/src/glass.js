@@ -229,13 +229,15 @@ function typedLine(c, t, phrases, px, py, fs, maxW) {
   return o;
 }
 
-function contactChips(c, t, links, x0, cy, { fs = 12.5, pad = 46, gap = 10 } = {}) {
+function contactChips(c, t, links, x0, cy, { fs = 12.5, pad = 46, gap = 10, big = false } = {}) {
   let o = ''; let cx = x0;
   [['linkedin', 'in', links.linkedin], ['site', 'globe', links.site], ['email', 'mail', links.email]].forEach(([k, ic, label]) => {
     if (!label) return;
     const w = pad + tw(label, fs, { bold: true });
     o += `<rect x="${cx}" y="${cy}" width="${w}" height="30" rx="15" fill="url(#sFill)"/><rect x="${cx + .5}" y="${cy + .5}" width="${w - 1}" height="29" rx="14.5" fill="none" stroke="url(#gStroke)" stroke-opacity=".8"/>`;
-    if (ic === 'in') o += `<rect x="${cx + 12}" y="${cy + 8}" width="14" height="14" rx="3.5" fill="${t.teal}"/><text x="${cx + 19}" y="${cy + 19}" class="s" font-size="9.5" font-weight="800" fill="${t.id === 'dark' ? '#06232a' : '#ffffff'}" text-anchor="middle">in</text>`;
+    if (ic === 'in') o += big
+      ? `<rect x="${cx + 11}" y="${cy + 7}" width="16" height="16" rx="4" fill="${t.teal}"/><text x="${cx + 19}" y="${cy + 19.2}" class="s" font-size="12" font-weight="800" fill="${t.id === 'dark' ? '#06232a' : '#ffffff'}" text-anchor="middle">in</text>`
+      : `<rect x="${cx + 12}" y="${cy + 8}" width="14" height="14" rx="3.5" fill="${t.teal}"/><text x="${cx + 19}" y="${cy + 19}" class="s" font-size="9.5" font-weight="800" fill="${t.id === 'dark' ? '#06232a' : '#ffffff'}" text-anchor="middle">in</text>`;
     else o += icon(ic, cx + 12, cy + 7.5, 15, t.teal);
     o += tx(cx + pad - 12, cy + 19.5, label, { sz: fs, w: 600, fill: t.chipText });
     cx += w + gap;
@@ -540,7 +542,7 @@ function heroM(d, t) {
   o += `<text x="118" y="92" class="s" font-size="40" font-weight="800" letter-spacing="-1" fill="url(#gefy)">${esc(trunc(p.name, W - 118 - 70, 40, { bold: true }))}</text>`;
   o += tx(32, 142, trunc(p.tagline, W - 64, 13.5), { sz: 13.5, fill: t.text2, w: 500 });
   o += typedLine(c, t, p.phrases, 32, 178, 12, W - 64 - 20);
-  o += contactChips(c, t, p.links, 32, 208, { fs: 12, pad: 40, gap: 8 });
+  o += contactChips(c, t, p.links, 32, 208, { fs: 12, pad: 40, gap: 8, big: true });
   o += contactChips.length ? '' : '';
   const tech = [['typescript', 372, 50, 44], ['astro', 392, 100, 32]];
   tech.forEach(([slug, x, y, sz], i) => { o += `<g class="fl${i + 1}">${plate(c, slug, x, y, sz)}</g>`; });
@@ -548,11 +550,14 @@ function heroM(d, t) {
   return finish(c, o);
 }
 
-function fitText(text, maxW, sizes) {
-  for (const sz of sizes) if (tw(text, sz) <= maxW) return { text, sz };
-  const sz = sizes[sizes.length - 1];
-  return { text: trunc(text, maxW, sz), sz };
+// Texto de 12 px; si no entra, se parte en dos líneas por el guion en vez de achicar la letra.
+function fitLines(text, maxW, sz = 12) {
+  if (tw(text, sz) <= maxW) return [text];
+  const parts = text.split(' – ');
+  if (parts.length === 2) return [`${parts[0]} –`, parts[1]].map((l) => trunc(l, maxW, sz));
+  return [trunc(text, maxW, sz)];
 }
+const lines = (cx, y, arr, t) => arr.map((l, i) => tx(cx, y + i * 14, l, { sz: 12, fill: t.text2, anchor: 'middle' })).join('');
 
 function streakM(d, t) {
   const s = d.streak; const W = 420, H = 190;
@@ -561,28 +566,39 @@ function streakM(d, t) {
   o += panel(c, 10, 10, W - 20, H - 20, 20);
   const third = (W - 20) / 3; const cxs = [10 + third / 2, 10 + third * 1.5, 10 + third * 2.5];
   [1, 2].forEach((i) => { o += `<rect x="${10 + third * i}" y="38" width="1" height="${H - 76}" fill="url(#vline)"/>`; });
-  const label = (cx, txt) => tx(cx, 42, txt.toUpperCase(), { sz: 11, w: 700, fill: t.text3, anchor: 'middle', ls: '.04em' });
+  const label = (cx, txt) => tx(cx, 42, txt.toUpperCase(), { sz: 12, w: 700, fill: t.text3, anchor: 'middle', ls: '.02em' });
   o += label(cxs[0], 'Contributions');
   o += `<text x="${cxs[0]}" y="106" class="s n" font-size="32" font-weight="800" letter-spacing="-1" fill="${t.text}" text-anchor="middle">${fmt(s.total)}</text>`;
-  o += tx(cxs[0], 146, since(s.totalFrom, d.now, { short: true }), { sz: 11.5, fill: t.text2, anchor: 'middle' });
+  o += tx(cxs[0], 146, since(s.totalFrom, d.now, { short: true }), { sz: 12, fill: t.text2, anchor: 'middle' });
   const R = 31, cy = 96, len = 2 * Math.PI * R; const pct = Math.min(1, s.current / Math.max(1, s.longest)); const off = len * (1 - pct);
   o += label(cxs[1], 'Current streak');
   c.defs.push(`<style>.rg{--len:${r1(len)};--off:${r1(off)};stroke-dasharray:${r1(len)};stroke-dashoffset:${r1(off)};animation:ring 1.6s cubic-bezier(.2,.7,.2,1) both}</style>`);
   o += `<circle cx="${cxs[1]}" cy="${cy}" r="${R}" fill="none" stroke="${t.hair[0]}" stroke-opacity="${t.id === 'dark' ? 0.14 : 0.16}" stroke-width="6"/>`;
   o += `<g transform="rotate(-90 ${cxs[1]} ${cy})"><circle class="rg" cx="${cxs[1]}" cy="${cy}" r="${R}" fill="none" stroke="url(#fire)" stroke-width="6" stroke-linecap="round" opacity=".5" filter="url(#fGlow)"/><circle class="rg" cx="${cxs[1]}" cy="${cy}" r="${R}" fill="none" stroke="url(#fire)" stroke-width="6" stroke-linecap="round"/></g>`;
   o += `<text x="${cxs[1]}" y="${cy + 6}" class="s n" font-size="24" font-weight="800" fill="${t.text}" text-anchor="middle">${s.current}</text>`;
-  o += tx(cxs[1], cy + 19, s.current === 1 ? 'day' : 'days', { sz: 11, fill: t.text3, anchor: 'middle', w: 600 });
+  o += tx(cxs[1], cy + 19, s.current === 1 ? 'day' : 'days', { sz: 12, fill: t.text3, anchor: 'middle', w: 600 });
   if (s.current > 0) o += `<circle cx="${cxs[1]}" cy="${cy - R}" r="10" fill="url(#fire)"/>` + icon('flame', cxs[1] - 6, cy - R - 7, 12, '#fff');
-  { const f = fitText(s.current > 0 ? range(s.currentFrom, s.currentTo, true, d.now, { short: true }) : 'No active streak', third - 10, [12, 11, 10.5]); o += tx(cxs[1], 160, f.text, { sz: f.sz, fill: t.text2, anchor: 'middle' }); }
+  o += lines(cxs[1], 158, fitLines(s.current > 0 ? range(s.currentFrom, s.currentTo, true, d.now, { short: true }) : 'No active streak', third - 10), t);
   o += label(cxs[2], 'Longest streak');
   o += `<text x="${cxs[2]}" y="106" class="s n" font-size="32" font-weight="800" letter-spacing="-1" fill="${t.text}" text-anchor="middle">${s.longest}<tspan font-size="13" font-weight="600" fill="${t.text3}" letter-spacing="0"> days</tspan></text>`;
-  { const f = fitText(range(s.longestFrom, s.longestTo, false, d.now, { short: true }), third - 10, [12, 11, 10.5]); o += tx(cxs[2], 146, f.text, { sz: f.sz, fill: t.text2, anchor: 'middle' }); }
+  o += lines(cxs[2], 144, fitLines(range(s.longestFrom, s.longestTo, false, d.now, { short: true }), third - 10), t);
   o += sampleTag(c);
   return finish(c, o);
 }
 
 /* ───────────── embebidos (3D y snake) dentro del marco glass ───────────── */
 const stripAnimations = (str) => str.replace(/<animate(?:Transform)?\b[^>]*?(?:\/>|>\s*<\/animate(?:Transform)?>)/g, '');
+
+const UNSAFE_EMBED = [
+  [/<\s*script/i, '<script>'], [/<\s*foreignObject/i, '<foreignObject>'], [/<\s*(iframe|object|embed|image|use|a|link|audio|video|animation)\b/i, 'elemento no permitido'],
+  [/(^|[\s"'\/])on[a-z]+\s*=/i, 'manejador de eventos'], [/javascript\s*:/i, 'javascript:'], [/@import/i, '@import'],
+  [/url\(\s*['"]?\s*(?!#)/i, 'url() que no es interna'], [/\b(?:xlink:)?href\s*=/i, 'href'], [/\bsrc\s*=/i, 'src'], [/https?:\/\/|\/\/[\w.-]+\.[a-z]{2,}/i, 'URL externa'], [/data\s*:/i, 'data:']
+];
+// Los SVG de github-profile-3d-contrib y snk los generan acciones fijadas por SHA, pero igual se incrustan en nuestro SVG:
+// si traen algo activo o externo se rechazan (la Action conserva el anterior) en vez de publicarlo.
+export function assertSafeEmbed(text, label) {
+  for (const [re, why] of UNSAFE_EMBED) if (re.test(text)) throw new Error(`embebido no permitido en ${label}: ${why}`);
+}
 
 export function splitTopGroups(body) {
   const groups = []; let depth = 0; let start = -1;
@@ -600,6 +616,7 @@ export function parse3d(raw) {
   const groups = splitTopGroups(body);
   const cubes = groups.find((g) => g.includes('cont-top-'));
   if (!cubes) throw new Error('el SVG del 3D no tiene cubos');
+  assertSafeEmbed(`${style}${cubes}`, '3D');
   const totals = groups.find((g) => /contributions/.test(g) && /fill-strong/.test(g)) || '';
   const total = /class="fill-strong"[^>]*>([\d,]+)</.exec(totals)?.[1] ?? null;
   const range = /(\d{4}-\d{2}-\d{2}) \/ (\d{4}-\d{2}-\d{2})/.exec(totals);
@@ -620,6 +637,7 @@ export function prepSnake(raw, themeId) {
   let css = m[1].replace(/:root\{[^}]*\}/, `:root{${Object.entries(vars).map(([k, v]) => `--${k}:${v}`).join(';')}}`);
   css = css.replace(/@keyframes ([\w-]+)/g, '@keyframes sn$1').replace(/animation-name:([\w-]+)/g, 'animation-name:sn$1').replace(/\.([cus]\d*)(?![\w-])/g, '.sn$1');
   const vb = /viewBox="([^"]+)"/.exec(raw)?.[1] || '-16 -32 880 192';
+  assertSafeEmbed(`${m[1]}${raw.slice(raw.indexOf('</style>') + 8, raw.lastIndexOf('</svg>'))}`, 'snake');
   const inner = raw.slice(raw.indexOf('</style>') + 8, raw.lastIndexOf('</svg>')).replace(/class="([^"]*)"/g, (_, v) => `class="${v.split(/\s+/).map((x) => `sn${x}`).join(' ')}"`);
   return { css, inner, viewBox: vb.split(/\s+/).map(Number) };
 }
