@@ -132,3 +132,33 @@ test('render rechaza widget o tema desconocido', () => {
   assert.throws(() => render('nada', sample, 'dark'), /desconocido/);
   assert.throws(() => render('hero', sample, 'sepia'), /desconocido/);
 });
+
+const streakTexts = (svg) => [...svg.matchAll(/text-anchor="middle">([^<]*(?:–|Since)[^<]*)</g)].map((m) => m[1]);
+const streakData = (over = {}) => ({ ...sample, now: '2026-11-23T12:00:00Z', streak: { total: 3860, totalFrom: '2020-09-21', totalTo: '2026-11-23', current: 2, currentFrom: '2026-11-22', currentTo: '2026-11-23', longest: 13, longestFrom: '2024-04-27', longestTo: '2024-05-09', ...over } });
+
+test('racha: el año aparece cuando no es el actual y el total dice desde cuándo', () => {
+  assert.deepEqual(streakTexts(render('streak', streakData(), 'dark')), ['Since Sep 21, 2020', 'Nov 22 – Present', 'Apr 27 – May 9, 2024']);
+  assert.deepEqual(streakTexts(render('streak', streakData(), 'dark', { mobile: true })), ["Since Sep 21 '20", 'Nov 22 – Present', "Apr 27 – May 9 '24"]);
+  const cross = streakData({ longestFrom: '2023-12-28', longestTo: '2024-01-03', currentFrom: '2026-01-01' });
+  assert.deepEqual(streakTexts(render('streak', cross, 'light')), ['Since Sep 21, 2020', 'Jan 1 – Present', 'Dec 28, 2023 – Jan 3, 2024']);
+  const m = streakTexts(render('streak', cross, 'light', { mobile: true }));
+  assert.equal(m[2], "Dec 28 '23 – Jan 3 '24");
+  assert.doesNotMatch(m.join(' '), /…/);
+  const sameYear = streakData({ longestFrom: '2026-03-03', longestTo: '2026-04-18' });
+  assert.equal(streakTexts(render('streak', sameYear, 'dark'))[2], 'Mar 3 – Apr 18');
+  for (const t of streakTexts(render('streak', streakData({ totalFrom: null, currentFrom: null, longestFrom: null }), 'dark'))) assert.doesNotMatch(t, /1970|Invalid|NaN/);
+});
+
+test('consistencia: "Other repos with PRs" es exactamente el conteo del widget de PRs', () => {
+  const raw = emptyRaw();
+  raw.user.repositoriesContributedTo = { totalCount: 99 };
+  raw.prs = [pr({ number: 1, repository: extRepo('a/one') }), pr({ number: 2, repository: extRepo('b/two') }), pr({ number: 3, repository: extRepo('b/two') }), pr({ number: 4, repository: extRepo('me/own') })];
+  const { model, files } = build(raw, cfg);
+  assert.equal(model.prs.reposTotal, 2);
+  assert.equal(model.stats.contributedTo, 2);
+  assert.match(files['prs-dark.svg'], /2 of 2 repositories/);
+  assert.match(files['prs-m-dark.svg'], /2 of 2 repos/);
+  assert.match(files['stats-dark.svg'], />Other repos with PRs</);
+  assert.doesNotMatch(files['stats-dark.svg'], />Contributed to</);
+  assert.equal(JSON.parse(files['data.json']).model.stats.contributedTo, 2);
+});

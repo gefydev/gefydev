@@ -1,8 +1,9 @@
-export function toGlassData({ cfg, raw, stats, streak, languages, prSummary, avatars = {}, now = new Date() }) {
+export function toGlassData({ cfg, raw, stats, streak, languages, prSummary, avatars = {}, embeds = null, now = new Date() }) {
   const p = cfg.profile || {};
   const user = raw.user || {};
   return {
     now: now.toISOString(),
+    embeds,
     profile: {
       name: p.name || user.name || cfg.login,
       login: cfg.login,
@@ -16,7 +17,7 @@ export function toGlassData({ cfg, raw, stats, streak, languages, prSummary, ava
       prs: stats.prs.total,
       issues: stats.issues,
       stars: stats.stars,
-      contributedTo: stats.contributedTo
+      contributedTo: prSummary.reposTotal
     },
     languages: languages.items.map((l) => ({ name: l.name, pct: Number(l.percent.toFixed(1)), color: l.name === 'Other' ? '#8b93ad' : l.color || '#8b93ad' })),
     streak: {

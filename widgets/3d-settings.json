@@ -1,0 +1,24 @@
+[
+  {
+    "type": "normal",
+    "fileName": "gefy-3d-dark.svg",
+    "backgroundColor": "#0d1330",
+    "foregroundColor": "#f2f5ff",
+    "strongColor": "#ffb972",
+    "weakColor": "#aab4d4",
+    "radarColor": "#45dcde",
+    "growingAnimation": true,
+    "contribColors": ["#262f5c", "#0f6e78", "#0db7b9", "#6f9bf5", "#b49cff"]
+  },
+  {
+    "type": "normal",
+    "fileName": "gefy-3d-light.svg",
+    "backgroundColor": "#f3f6ff",
+    "foregroundColor": "#101426",
+    "strongColor": "#a24408",
+    "weakColor": "#555d80",
+    "radarColor": "#0a8f92",
+    "growingAnimation": true,
+    "contribColors": ["#dfe5fb", "#9fe3e3", "#2fc3c6", "#6a8df0", "#7a55e0"]
+  }
+]

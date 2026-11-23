@@ -91,9 +91,10 @@ Hey there! I'm **Genaro Febbo Yapur**, a Full-Stack developer from Buenos Aires,
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d/profile-night-view.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d/profile-green.svg">
-    <img alt="3D Contribution Graph" src="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d/profile-night-view.svg" width="95%">
+    <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d-m-dark.svg">
+    <source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d-m-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d-dark.svg">
+    <img src="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/3d-light.svg" alt="3D contribution graph of the last 12 months" width="850">
   </picture>
 </div>
 
@@ -101,9 +102,10 @@ Hey there! I'm **Genaro Febbo Yapur**, a Full-Stack developer from Buenos Aires,
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/output/github-contribution-grid-snake-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/output/github-contribution-grid-snake.svg">
-    <img alt="GitHub Contribution Grid Snake Animation" src="https://raw.githubusercontent.com/gefydev/gefydev/output/github-contribution-grid-snake-dark.svg" width="95%">
+    <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/snake-m-dark.svg">
+    <source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/snake-m-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/snake-dark.svg">
+    <img src="https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/snake-light.svg" alt="Snake eating the contribution graph" width="850">
   </picture>
 </div>
 

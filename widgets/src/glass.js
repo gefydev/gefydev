@@ -75,11 +75,26 @@ function rel(iso, nowIso) {
   const mon = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
   return d.getUTCFullYear() === now.getUTCFullYear() ? `${mon} ${d.getUTCDate()}` : `${mon} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
-const dshort = (iso) => {
+const dshort = (iso, nowIso, { year = 'auto', short = false } = {}) => {
   const d = new Date(iso);
-  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const base = d.toLocaleString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const cur = nowIso ? new Date(nowIso).getUTCFullYear() : null;
+  if (year === false || (year === 'auto' && (cur === null || d.getUTCFullYear() === cur))) return base;
+  const y = d.getUTCFullYear();
+  return short ? `${base} '${String(y).slice(2)}` : `${base}, ${y}`;
 };
-const range = (a, b, toNow) => (!a || !Number.isFinite(Date.parse(a)) ? '—' : `${dshort(a)} – ${toNow ? 'Present' : dshort(b)}`);
+// Rango "Mon D – Mon D": agrega el año cuando no es el actual (o cuando los extremos son de años distintos).
+const range = (a, b, toNow, nowIso, { short = false } = {}) => {
+  if (!a || !Number.isFinite(Date.parse(a))) return '—';
+  const cur = nowIso ? new Date(nowIso).getUTCFullYear() : null;
+  const ya = new Date(a).getUTCFullYear(); const yb = toNow ? cur : new Date(b).getUTCFullYear();
+  const cross = ya !== yb;
+  const left = dshort(a, nowIso, { year: cross, short });
+  const right = toNow ? 'Present' : dshort(b, nowIso, { short });
+  return `${left} – ${right}`;
+};
+// "Since Mon D, YYYY" (siempre con año)
+const since = (a, nowIso, { short = false } = {}) => (!a || !Number.isFinite(Date.parse(a)) ? '—' : `Since ${dshort(a, nowIso, { year: true, short })}`);
 
 // Íconos Octicons (MIT) en grilla 16
 const OCT = {
@@ -266,7 +281,7 @@ function cardHeader(c, title, iconKey, right) {
 /* ───────────── WIDGET: stats ───────────── */
 function stats(d, t) {
   const s = d.stats; const W = 420, H = 270;
-  const c = ctx(t, W, H, 'GitHub stats', `Commits in the last 12 months ${s.commits}, PRs to other people's repositories ${s.prs}, issues ${s.issues}, stars ${s.stars}, contributed to ${s.contributedTo}`);
+  const c = ctx(t, W, H, 'GitHub stats', `Commits in the last 12 months ${s.commits}, PRs to other people's repositories ${s.prs}, issues ${s.issues}, stars ${s.stars}, other repositories with pull requests ${s.contributedTo}`);
   let o = scene(c, [[60, 40, 120, 'violet'], [380, 260, 140, 'teal'], [330, 30, 80, 'blue', 0.8]]);
   o += panel(c, 10, 10, W - 20, H - 20, 18);
   o += cardHeader(c, 'GitHub Stats', 'repo', `@${d.profile.login}`);
@@ -275,7 +290,7 @@ function stats(d, t) {
     ['pr', 'PRs to other repos', s.prs, 'violet'],
     ['issue', 'Issues', s.issues, 'blue'],
     ['star', 'Stars Earned', s.stars, 'fire1'],
-    ['repo', 'Contributed to', s.contributedTo, 'pink'],
+    ['repo', 'Other repos with PRs', s.contributedTo, 'pink'],
   ];
   rows.forEach(([ic, label, val, ck], i) => {
     const y = 76 + i * 36;
@@ -345,7 +360,7 @@ function streak(d, t) {
   // total
   o += label(cxs[0], 'Total contributions');
   o += `<text x="${cxs[0]}" y="112" class="s n" font-size="48" font-weight="800" letter-spacing="-1.5" fill="${t.text}" text-anchor="middle">${fmt(s.total)}</text>`;
-  o += tx(cxs[0], 150, range(s.totalFrom, s.totalTo, true), { sz: 12.5, fill: t.text2, anchor: 'middle' });
+  o += tx(cxs[0], 150, since(s.totalFrom, d.now), { sz: 12.5, fill: t.text2, anchor: 'middle' });
   // actual: anillo
   const R = 40, cy = 98, len = 2 * Math.PI * R; const pct = Math.min(1, s.current / Math.max(1, s.longest)); const off = len * (1 - pct);
   o += label(cxs[1], 'Current streak');
@@ -355,11 +370,11 @@ function streak(d, t) {
   o += `<text x="${cxs[1]}" y="${cy + 6}" class="s n" font-size="30" font-weight="800" fill="${t.text}" text-anchor="middle">${s.current}</text>`;
   o += tx(cxs[1], cy + 21, s.current === 1 ? 'day' : 'days', { sz: 10.5, fill: t.text3, anchor: 'middle', w: 600 });
   if (s.current > 0) o += `<circle cx="${cxs[1]}" cy="${cy - R}" r="11" fill="url(#fire)"/>` + icon('flame', cxs[1] - 6.5, cy - R - 7.5, 13, '#fff');
-  o += tx(cxs[1], 164, s.current > 0 ? range(s.currentFrom, s.currentTo, true) : 'No active streak', { sz: 12.5, fill: t.text2, anchor: 'middle' });
+  o += tx(cxs[1], 164, s.current > 0 ? range(s.currentFrom, s.currentTo, true, d.now) : 'No active streak', { sz: 12.5, fill: t.text2, anchor: 'middle' });
   // más larga
   o += label(cxs[2], 'Longest streak');
   o += `<text x="${cxs[2]}" y="112" class="s n" font-size="48" font-weight="800" letter-spacing="-1.5" fill="${t.text}" text-anchor="middle">${s.longest}<tspan font-size="16" font-weight="600" fill="${t.text3}" letter-spacing="0"> days</tspan></text>`;
-  o += tx(cxs[2], 150, range(s.longestFrom, s.longestTo, false), { sz: 12.5, fill: t.text2, anchor: 'middle' });
+  o += tx(cxs[2], 150, range(s.longestFrom, s.longestTo, false, d.now), { sz: 12.5, fill: t.text2, anchor: 'middle' });
   o += sampleTag(c);
   return finish(c, o);
 }
@@ -382,7 +397,7 @@ function stack(d, t, opts = {}) {
     o += `<g class="fl${(i % 3) + 1}" style="animation-duration:${6 + (i % 4)}s">${plate(c, it.slug, r1(cx), y + 38, 46)}</g>`;
     const nsz = opts.nameSz || 12.5;
     o += tx(r1(cx), y + 82, trunc(it.name, tileW - (opts.nameSz ? 4 : 10), nsz, { bold: true }), { sz: nsz, w: 700, fill: t.text, anchor: 'middle' });
-    const ksz = opts.nameSz ? 11 : 10;
+    const ksz = opts.nameSz ? 12 : 10;
     o += tx(r1(cx), y + 98, trunc(it.kind, tileW - 6, ksz), { sz: ksz, w: 500, fill: t.text3, anchor: 'middle', ls: opts.nameSz ? '.02em' : '.04em' });
   });
   o += sampleTag(c);
@@ -415,7 +430,7 @@ function prs(d, t, opts = {}) {
     o += tx(78, 70, "To other people's repos · latest 3 each", { sz: 12, fill: t.text3 });
     o += `<text x="32" y="116" class="s n" font-size="34" font-weight="800" letter-spacing="-1" fill="url(#gefy)">${fmt(P.total)}</text>`;
     o += tx(32 + tw(fmt(P.total), 34, { bold: true }) + 8, 116, P.total === 1 ? 'PR to other repos' : 'PRs to other repos', { sz: 12, w: 700, fill: t.text3 });
-    if (P.ownTotal > 0) o += tx(W - 32, 116, `+ ${fmt(P.ownTotal)} in own repos`, { sz: 11, fill: t.text3, anchor: 'end' });
+    if (P.ownTotal > 0) o += tx(W - 32, 116, `+ ${fmt(P.ownTotal)} in own repos`, { sz: 12, fill: t.text3, anchor: 'end' });
     const bx = 32, bw = W - 64, by = 134, bh = 8;
     if (empty) {
       o += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="4" fill="${t.hair[0]}" opacity="${t.hair[1] * 1.3}"/>`;
@@ -431,7 +446,7 @@ function prs(d, t, opts = {}) {
       const lab = `${fmt(v)} ${k}`; o += tx(lx + 14, ly, lab, { sz: 12.5, w: 700, fill: t.text });
       lx += 14 + tw(lab, 12.5, { bold: true }) + 18;
     });
-    if (!empty) o += tx(W - 32, ly, `${repos.length} of ${P.reposTotal || repos.length} repos`, { sz: 11, fill: t.text3, anchor: 'end' });
+    if (!empty) o += tx(W - 32, ly, `${repos.length} of ${P.reposTotal || repos.length} repos`, { sz: 12, fill: t.text3, anchor: 'end' });
     o += hair(c, 32, 176, W - 32);
   } else {
     o += tx(78, 50, 'Open Source Contributions', { sz: 19, w: 800, fill: t.text });
@@ -533,6 +548,12 @@ function heroM(d, t) {
   return finish(c, o);
 }
 
+function fitText(text, maxW, sizes) {
+  for (const sz of sizes) if (tw(text, sz) <= maxW) return { text, sz };
+  const sz = sizes[sizes.length - 1];
+  return { text: trunc(text, maxW, sz), sz };
+}
+
 function streakM(d, t) {
   const s = d.streak; const W = 420, H = 190;
   const c = ctx(t, W, H, 'Contribution streak', `Total ${s.total}, current streak ${s.current} days, longest ${s.longest} days`);
@@ -540,25 +561,124 @@ function streakM(d, t) {
   o += panel(c, 10, 10, W - 20, H - 20, 20);
   const third = (W - 20) / 3; const cxs = [10 + third / 2, 10 + third * 1.5, 10 + third * 2.5];
   [1, 2].forEach((i) => { o += `<rect x="${10 + third * i}" y="38" width="1" height="${H - 76}" fill="url(#vline)"/>`; });
-  const label = (cx, txt) => tx(cx, 42, txt.toUpperCase(), { sz: 10, w: 700, fill: t.text3, anchor: 'middle', ls: '.06em' });
+  const label = (cx, txt) => tx(cx, 42, txt.toUpperCase(), { sz: 11, w: 700, fill: t.text3, anchor: 'middle', ls: '.04em' });
   o += label(cxs[0], 'Contributions');
   o += `<text x="${cxs[0]}" y="106" class="s n" font-size="32" font-weight="800" letter-spacing="-1" fill="${t.text}" text-anchor="middle">${fmt(s.total)}</text>`;
-  o += tx(cxs[0], 146, range(s.totalFrom, s.totalTo, true), { sz: 11.5, fill: t.text2, anchor: 'middle' });
+  o += tx(cxs[0], 146, since(s.totalFrom, d.now, { short: true }), { sz: 11.5, fill: t.text2, anchor: 'middle' });
   const R = 31, cy = 96, len = 2 * Math.PI * R; const pct = Math.min(1, s.current / Math.max(1, s.longest)); const off = len * (1 - pct);
   o += label(cxs[1], 'Current streak');
   c.defs.push(`<style>.rg{--len:${r1(len)};--off:${r1(off)};stroke-dasharray:${r1(len)};stroke-dashoffset:${r1(off)};animation:ring 1.6s cubic-bezier(.2,.7,.2,1) both}</style>`);
   o += `<circle cx="${cxs[1]}" cy="${cy}" r="${R}" fill="none" stroke="${t.hair[0]}" stroke-opacity="${t.id === 'dark' ? 0.14 : 0.16}" stroke-width="6"/>`;
   o += `<g transform="rotate(-90 ${cxs[1]} ${cy})"><circle class="rg" cx="${cxs[1]}" cy="${cy}" r="${R}" fill="none" stroke="url(#fire)" stroke-width="6" stroke-linecap="round" opacity=".5" filter="url(#fGlow)"/><circle class="rg" cx="${cxs[1]}" cy="${cy}" r="${R}" fill="none" stroke="url(#fire)" stroke-width="6" stroke-linecap="round"/></g>`;
   o += `<text x="${cxs[1]}" y="${cy + 6}" class="s n" font-size="24" font-weight="800" fill="${t.text}" text-anchor="middle">${s.current}</text>`;
-  o += tx(cxs[1], cy + 19, s.current === 1 ? 'day' : 'days', { sz: 10, fill: t.text3, anchor: 'middle', w: 600 });
+  o += tx(cxs[1], cy + 19, s.current === 1 ? 'day' : 'days', { sz: 11, fill: t.text3, anchor: 'middle', w: 600 });
   if (s.current > 0) o += `<circle cx="${cxs[1]}" cy="${cy - R}" r="10" fill="url(#fire)"/>` + icon('flame', cxs[1] - 6, cy - R - 7, 12, '#fff');
-  o += tx(cxs[1], 160, s.current > 0 ? range(s.currentFrom, s.currentTo, true) : 'No active streak', { sz: 11.5, fill: t.text2, anchor: 'middle' });
+  { const f = fitText(s.current > 0 ? range(s.currentFrom, s.currentTo, true, d.now, { short: true }) : 'No active streak', third - 10, [12, 11, 10.5]); o += tx(cxs[1], 160, f.text, { sz: f.sz, fill: t.text2, anchor: 'middle' }); }
   o += label(cxs[2], 'Longest streak');
   o += `<text x="${cxs[2]}" y="106" class="s n" font-size="32" font-weight="800" letter-spacing="-1" fill="${t.text}" text-anchor="middle">${s.longest}<tspan font-size="13" font-weight="600" fill="${t.text3}" letter-spacing="0"> days</tspan></text>`;
-  o += tx(cxs[2], 146, range(s.longestFrom, s.longestTo, false), { sz: 11.5, fill: t.text2, anchor: 'middle' });
+  { const f = fitText(range(s.longestFrom, s.longestTo, false, d.now, { short: true }), third - 10, [12, 11, 10.5]); o += tx(cxs[2], 146, f.text, { sz: f.sz, fill: t.text2, anchor: 'middle' }); }
   o += sampleTag(c);
   return finish(c, o);
 }
+
+/* ───────────── embebidos (3D y snake) dentro del marco glass ───────────── */
+const stripAnimations = (str) => str.replace(/<animate(?:Transform)?\b[^>]*?(?:\/>|>\s*<\/animate(?:Transform)?>)/g, '');
+
+export function splitTopGroups(body) {
+  const groups = []; let depth = 0; let start = -1;
+  for (const m of body.matchAll(/<g[\s>]|<\/g>/g)) {
+    if (m[0] !== '</g>') { if (depth === 0) start = m.index; depth += 1; } else { depth -= 1; if (depth === 0) groups.push(body.slice(start, m.index + 4)); }
+  }
+  return groups;
+}
+
+// Del SVG de github-profile-3d-contrib se conservan solo el gráfico isométrico (cubos) y su paleta; el radar y el donut
+// repiten datos que ya tienen sus widgets (y el radar cuenta PRs de otra forma), y el total se rehace con el estilo glass.
+export function parse3d(raw) {
+  const style = (/<style>([\s\S]*?)<\/style>/.exec(raw) || [])[1] || '';
+  const body = raw.slice(raw.indexOf('</style>') + 8, raw.lastIndexOf('</svg>'));
+  const groups = splitTopGroups(body);
+  const cubes = groups.find((g) => g.includes('cont-top-'));
+  if (!cubes) throw new Error('el SVG del 3D no tiene cubos');
+  const totals = groups.find((g) => /contributions/.test(g) && /fill-strong/.test(g)) || '';
+  const total = /class="fill-strong"[^>]*>([\d,]+)</.exec(totals)?.[1] ?? null;
+  const range = /(\d{4}-\d{2}-\d{2}) \/ (\d{4}-\d{2}-\d{2})/.exec(totals);
+  const levels = [0, 1, 2, 3, 4].map((n) => (new RegExp(`\\.cont-top-${n}\\s*\\{\\s*fill:\\s*([^;}]+)`).exec(style) || [])[1]?.trim() || null);
+  return { style: style.replace(/\*\s*\{[^}]*\}/, ''), cubes, total: total ? Number(total.replace(/,/g, '')) : null, from: range?.[1] || null, to: range?.[2] || null, levels };
+}
+
+const SNAKE_VARS = {
+  dark: { cb: '#ffffff14', cs: '#ffb972', ce: '#262f5c', c0: '#262f5c', c1: '#0f6e78', c2: '#0db7b9', c3: '#6f9bf5', c4: '#b49cff' },
+  light: { cb: '#10142614', cs: '#d9480f', ce: '#dfe5fb', c0: '#dfe5fb', c1: '#9fe3e3', c2: '#2fc3c6', c3: '#6a8df0', c4: '#7a55e0' }
+};
+
+// Prefija clases y animaciones de snk (c, u, s…) para que no choquen con las del marco y aplica la paleta de marca.
+export function prepSnake(raw, themeId) {
+  const m = /<style>([\s\S]*?)<\/style>/.exec(raw);
+  if (!m) throw new Error('el SVG de la snake no tiene estilos');
+  const vars = SNAKE_VARS[themeId];
+  let css = m[1].replace(/:root\{[^}]*\}/, `:root{${Object.entries(vars).map(([k, v]) => `--${k}:${v}`).join(';')}}`);
+  css = css.replace(/@keyframes ([\w-]+)/g, '@keyframes sn$1').replace(/animation-name:([\w-]+)/g, 'animation-name:sn$1').replace(/\.([cus]\d*)(?![\w-])/g, '.sn$1');
+  const vb = /viewBox="([^"]+)"/.exec(raw)?.[1] || '-16 -32 880 192';
+  const inner = raw.slice(raw.indexOf('</style>') + 8, raw.lastIndexOf('</svg>')).replace(/class="([^"]*)"/g, (_, v) => `class="${v.split(/\s+/).map((x) => `sn${x}`).join(' ')}"`);
+  return { css, inner, viewBox: vb.split(/\s+/).map(Number) };
+}
+
+const prettyDate = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+
+function activity3d(d, t, opts = {}) {
+  const raw = d.embeds?.threeD?.[t.id];
+  if (!raw) throw new Error('falta el SVG del 3D');
+  const e = parse3d(raw);
+  const W = opts.W || 850; const narrow = W < 600; const pad = 32; const cw = W - pad * 2;
+  const vb = [10, 134, 1216, 702]; const k = cw / vb[2]; const ch = Math.round(vb[3] * k);
+  const top = 78; const H = top + ch + 24;
+  const rangeS = e.from && e.to ? `${prettyDate(e.from)} – ${prettyDate(e.to)}` : '';
+  const c = ctx(t, W, H, '3D contribution graph', `Contribution calendar of the last 12 months${e.total != null ? `, ${e.total} contributions` : ''}`);
+  let o = scene(c, [[W * 0.12, 70, 120, 'violet'], [W * 0.88, H - 60, 150, 'teal'], [W * 0.5, H - 20, 110, 'blue', 0.8]]);
+  o += panel(c, 10, 10, W - 20, H - 20, 20);
+  o += cardHeader(c, '3D Contribution Graph', 'commit', narrow ? null : rangeS);
+  c.defs.push(`<style>${e.style}</style>`);
+  const body = narrow ? stripAnimations(e.cubes) : e.cubes;
+  o += `<svg x="${pad}" y="${top}" width="${cw}" height="${ch}" viewBox="${vb.join(' ')}">${body}</svg>`;
+  // total (esquina superior derecha, vacía en el gráfico)
+  if (e.total != null) {
+    const nx = W - pad - 4; const ny = top + (narrow ? 34 : 62);
+    o += `<text x="${nx}" y="${ny}" class="s n" font-size="${narrow ? 30 : 46}" font-weight="800" letter-spacing="-1" fill="url(#gefy)" text-anchor="end">${fmt(e.total)}</text>`;
+    o += tx(nx, ny + (narrow ? 20 : 26), 'contributions', { sz: narrow ? 12 : 13, w: 600, fill: t.text2, anchor: 'end' });
+    if (narrow && rangeS) o += tx(nx, ny + 38, 'last 12 months', { sz: 12, fill: t.text3, anchor: 'end' });
+    else if (rangeS) o += tx(nx, ny + 44, 'last 12 months', { sz: 11.5, fill: t.text3, anchor: 'end' });
+  }
+  // leyenda Less/More (esquina inferior izquierda)
+  const ly = top + ch - (narrow ? 4 : 8); const sq = narrow ? 11 : 13;
+  let lx = pad + 2;
+  o += tx(lx, ly, 'Less', { sz: narrow ? 12 : 11.5, fill: t.text3 });
+  lx += tw('Less', narrow ? 12 : 11.5) + 8;
+  e.levels.forEach((col, i) => { if (col) o += `<rect x="${lx}" y="${ly - sq + 2}" width="${sq}" height="${sq}" rx="3" fill="${col}"/>`; lx += sq + 4; });
+  o += tx(lx + 4, ly, 'More', { sz: narrow ? 12 : 11.5, fill: t.text3 });
+  o += sampleTag(c);
+  return finish(c, o);
+}
+
+function snakeWidget(d, t, opts = {}) {
+  const raw = d.embeds?.snake;
+  if (!raw) throw new Error('falta el SVG de la snake');
+  const sn = prepSnake(raw, t.id);
+  const W = opts.W || 850; const narrow = W < 600; const pad = 32; const cw = W - pad * 2;
+  const [, , vw, vh] = sn.viewBox; const k = cw / vw; const ch = Math.round(vh * k);
+  const top = 76; const H = top + ch + (narrow ? 22 : 26);
+  const c = ctx(t, W, H, 'Contribution snake', 'Animated snake eating the contribution calendar of the last 12 months');
+  let o = scene(c, [[W * 0.1, 60, 110, 'violet'], [W * 0.9, H - 40, 130, 'teal'], [W * 0.5, H - 10, 90, 'pink', 0.55]]);
+  o += panel(c, 10, 10, W - 20, H - 20, 20);
+  o += cardHeader(c, 'Contribution Snake', 'flame', narrow ? null : 'eats the last 12 months');
+  c.defs.push(`<style>${sn.css}</style>`);
+  o += `<svg x="${pad}" y="${top - 4}" width="${cw}" height="${ch}" viewBox="${sn.viewBox.join(' ')}">${sn.inner}</svg>`;
+  o += sampleTag(c);
+  return finish(c, o);
+}
+
+export const embedWidgets = { '3d': activity3d, snake: snakeWidget };
+export const embedMobile = { '3d': (d, t) => activity3d(d, t, { W: 420 }), snake: (d, t) => snakeWidget(d, t, { W: 420 }) };
 
 export const widgets = { hero, stack, stats, langs, streak, prs };
 export const mobileWidgets = {
@@ -570,7 +690,7 @@ export const mobileWidgets = {
 export const THEME_IDS = Object.keys(THEMES);
 
 export function render(name, data, themeId, { sample = false, mobile = false } = {}) {
-  const fn = mobile ? mobileWidgets[name] : widgets[name];
+  const fn = mobile ? (mobileWidgets[name] || embedMobile[name]) : (widgets[name] || embedWidgets[name]);
   const theme = THEMES[themeId];
   if (!fn || !theme) throw new Error(`widget o tema desconocido: ${name}/${themeId}`);
   SAMPLE_MODE.on = sample;

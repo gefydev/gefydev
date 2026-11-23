@@ -5,13 +5,14 @@ Generador sin dependencias (Node 20+, solo `fetch` y `node:test`) que consulta l
 ```
 widgets/
   config.json        usuario, textos del hero, stack, límites
+  3d-settings.json   paleta de marca (dark/light) para github-profile-3d-contrib
   assets/            logos (simple-icons, CC0)
   src/
     github.js        cliente GraphQL (reintentos, paginación) y fetchProfile
     avatars.js       descarga avatares como data: URI (solo hosts de GitHub, tipos de imagen, <= 12 KB)
     compute.js       cálculos puros: racha, lenguajes, PRs por repo, stats
     model.js         arma el contrato de datos del diseño (forma de test/fixtures/sample.json)
-    glass.js         plantillas SVG (hero, stack, prs, stats, langs, streak) + variantes móviles
+    glass.js         plantillas SVG (hero, stack, prs, stats, langs, streak) + variantes móviles + marco para el 3D y la snake
     index.js         orquestador y CLI; DEFINITIONS (qué cuenta cada número)
   test/              node --test (SVG con datos vacíos, enormes y hostiles)
 ```
@@ -37,11 +38,19 @@ Todos los widgets salen de la misma consulta y de las mismas funciones de `compu
 - **Commits:** públicos de los últimos 12 meses.
 - **Estrellas:** repos públicos propios que no son forks. **Lenguajes:** bytes en esos mismos repos.
 - **Racha:** días consecutivos con alguna contribución; el día en curso sin contribuciones todavía no corta la racha. Coincide con `streak-stats`.
-- **Privados:** no se usan en ningún número ni aparecen nombres, títulos o lenguajes privados, aunque el token los vea. No hay PAT: la Action usa `GITHUB_TOKEN`.
+- **Privados:** PRs, repos, lenguajes y estrellas usan solo repos públicos; nunca aparecen nombres, títulos ni lenguajes privados. No hay PAT: la Action usa solo `GITHUB_TOKEN`. **Excepción conocida:** la racha, el total de contribuciones y el gráfico 3D salen del calendario de contribuciones de GitHub, que incluye contribuciones privadas anonimizadas (solo cantidades, sin nombres) si el perfil tiene activado "Include private contributions on my profile"; es el mismo número que ya muestra el perfil público.
 
 ## Publicación
 
-`.github/workflows/profile-widgets.yml` corre cada 6 h, a mano (`workflow_dispatch`) y en cada push a `main`: tests, 3D (`github-profile-3d-contrib` fijado por SHA), widgets, y publica todo como un único commit en la rama `widgets-output` (se reescribe cada vez: el historial de `main` no crece). Si la generación del 3D falla, se conservan los SVG anteriores. El README referencia `https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/...`. `snake.yml` sigue publicando en la rama `output`, con las acciones fijadas por SHA. El cron solo se activa cuando el workflow está en la rama por defecto.
+`.github/workflows/profile-widgets.yml` corre cada 6 h, a mano (`workflow_dispatch`) y en cada push a `main`: tests, 3D (`github-profile-3d-contrib`, paleta de `3d-settings.json`), snake (`platane/snk`), widgets, y publica todo como un único commit en la rama `widgets-output` (se reescribe cada vez: el historial de `main` no crece). Todas las acciones están fijadas por SHA. Si la generación del 3D o de la snake falla, se conservan los SVG anteriores. El README referencia `https://raw.githubusercontent.com/gefydev/gefydev/widgets-output/...`. El cron solo se activa cuando el workflow está en la rama por defecto. `snake.yml` y la rama `output` quedan obsoletos (la snake ahora se genera acá).
+
+## 3D y snake dentro del marco de vidrio
+
+Son SVG de terceros; se componen en `glass.js` (`3d-*.svg` y `snake-*.svg`, con variante móvil `-m`):
+
+- **3D:** se conservan solo el gráfico isométrico y su paleta (que sale de `3d-settings.json`: niveles teal → azul → violeta, dark y light); el radar y el donut se descartan porque repiten datos que ya tienen sus widgets (y el radar cuenta los PRs de otra forma). El total de contribuciones y la leyenda Less/More se rehacen con el estilo del sistema. En móvil se quitan las animaciones de crecimiento.
+- **Snake:** se prefijan sus clases y animaciones (`c`, `u`, `s` chocarían con las del marco) y se reemplaza su paleta por la de marca según el tema.
+- Se incrustan en línea (no como `<image>`), porque pesan menos comprimidos: ~8 KB el 3D y ~11 KB la snake (servidos con gzip).
 
 ## Caché de las imágenes
 
