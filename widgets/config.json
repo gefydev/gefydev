@@ -1,0 +1,7 @@
+{
+  "login": "gefydev",
+  "includePrivate": "off",
+  "prs": { "maxRepos": 8, "lastPerRepo": 3 },
+  "languages": { "top": 6, "excludeRepos": [], "excludeLanguages": [] },
+  "stats": { "excludeRepos": [] }
+}

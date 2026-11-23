@@ -1,0 +1,50 @@
+name: Profile widgets
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - feat/profile-widgets
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-widgets
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: generate-and-publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test
+        working-directory: widgets
+        run: npm test
+
+      - name: Generate widgets
+        env:
+          PROFILE_STATS_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: node widgets/src/index.js --out dist
+
+      - name: Publish to the widgets-output branch
+        env:
+          PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist
+          git init -q -b widgets-output
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "chore: update profile widgets"
+          git push -q -f "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" widgets-output
