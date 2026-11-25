@@ -166,3 +166,17 @@ test('consistencia: "Other repos with PRs" es exactamente el conteo del widget d
   assert.doesNotMatch(files['stats-dark.svg'], />Contributed to</);
   assert.equal(JSON.parse(files['data.json']).model.stats.contributedTo, 2);
 });
+
+test('primer cuadro: barras y anillos no arrancan vacios, el halo se anima con la barra y se respeta prefers-reduced-motion', () => {
+  for (const [w, t, m] of all()) {
+    const svg = render(w, sample, t, { mobile: m });
+    const id = `${w}-${t}${m ? '-m' : ''}`;
+    assert.doesNotMatch(svg, /scaleX\(0\)/, `${id}: la barra no puede partir de ancho cero`);
+    assert.doesNotMatch(svg, /@keyframes ring\{from\{stroke-dashoffset:var\(--len\)\}/, `${id}: el anillo no puede partir vacio`);
+    if (/class="bar"/.test(svg)) {
+      assert.match(svg, /prefers-reduced-motion:reduce\)\{[^}]*\.bar/, `${id}: sin animacion con prefers-reduced-motion`);
+      assert.doesNotMatch(svg, /fGlow\)">(?:(?!<\/g>).)*<\/g><g class="bar">/s, `${id}: el halo queda fuera de .bar`);
+      assert.match(svg, /<g class="bar"><g opacity="[\d.]+" filter="url\(#fGlow\)">/, `${id}: el halo va dentro de .bar`);
+    }
+  }
+});

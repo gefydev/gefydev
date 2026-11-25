@@ -133,8 +133,8 @@ function head(c) {
 @keyframes d3{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-22px)}}
 @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes sw{0%{transform:translateX(-900px)}60%,100%{transform:translateX(900px)}}
-@keyframes ring{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:var(--off)}}
-@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ring{from{stroke-dashoffset:calc(var(--off) + (var(--len) - var(--off)) * .3)}to{stroke-dashoffset:var(--off)}}
+@keyframes grow{from{transform:scaleX(.72)}to{transform:scaleX(1)}}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .o1{animation:d1 16s ease-in-out infinite}.o2{animation:d2 20s ease-in-out infinite}.o3{animation:d3 24s ease-in-out infinite}
 .fl1{animation:fl 6s ease-in-out infinite}.fl2{animation:fl 7.5s ease-in-out -2s infinite}.fl3{animation:fl 5.5s ease-in-out -4s infinite}
@@ -336,7 +336,7 @@ function langs(d, t) {
     glow += `<rect x="${r1(x)}" y="${by + 2}" width="${r1(w)}" height="${bh}" rx="3" fill="${l.color}"/>`;
     x += w + gap;
   });
-  o += `<g opacity="${t.id === 'dark' ? 0.55 : 0.4}" filter="url(#fGlow)">${glow}</g><g class="bar">${segs}</g>`;
+  o += `<g class="bar"><g opacity="${t.id === 'dark' ? 0.55 : 0.4}" filter="url(#fGlow)">${glow}</g>${segs}</g>`;
   // leyenda 2 columnas
   const half = Math.ceil(L.length / 2);
   L.forEach((l, i) => {
@@ -440,7 +440,7 @@ function prs(d, t, opts = {}) {
       const parts = [['merged', P.merged], ['open', P.open], ['closed', P.closed]].filter(([, v]) => v > 0);
       const gap = 3; const usable = bw - gap * (parts.length - 1); let x = bx; let segs = '', glow = '';
       parts.forEach(([k, v]) => { const w = Math.max(6, (v / P.total) * usable); segs += `<rect x="${r1(x)}" y="${by}" width="${r1(w)}" height="${bh}" rx="3" fill="${ST[k].col}"/>`; glow += `<rect x="${r1(x)}" y="${by + 1.5}" width="${r1(w)}" height="${bh}" rx="3" fill="${ST[k].col}"/>`; x += w + gap; });
-      o += `<g opacity="${t.id === 'dark' ? 0.5 : 0.35}" filter="url(#fGlow)">${glow}</g><g class="bar">${segs}</g>`;
+      o += `<g class="bar"><g opacity="${t.id === 'dark' ? 0.5 : 0.35}" filter="url(#fGlow)">${glow}</g>${segs}</g>`;
     }
     let lx = 32; const ly = 166;
     [['merged', P.merged], ['open', P.open], ['closed', P.closed]].forEach(([k, v]) => {
@@ -464,7 +464,7 @@ function prs(d, t, opts = {}) {
       const parts = [['merged', P.merged], ['open', P.open], ['closed', P.closed]].filter(([, v]) => v > 0);
       const gap = 3; const usable = bw - gap * (parts.length - 1); let x = bx; let segs = '', glow = '';
       parts.forEach(([k, v]) => { const w = Math.max(6, (v / P.total) * usable); segs += `<rect x="${r1(x)}" y="${by}" width="${r1(w)}" height="${bh}" rx="3" fill="${ST[k].col}"/>`; glow += `<rect x="${r1(x)}" y="${by + 1.5}" width="${r1(w)}" height="${bh}" rx="3" fill="${ST[k].col}"/>`; x += w + gap; });
-      o += `<g opacity="${t.id === 'dark' ? 0.5 : 0.35}" filter="url(#fGlow)">${glow}</g><g class="bar">${segs}</g>`;
+      o += `<g class="bar"><g opacity="${t.id === 'dark' ? 0.5 : 0.35}" filter="url(#fGlow)">${glow}</g>${segs}</g>`;
     }
     let lx = 32; const ly = 122;
     [['merged', P.merged], ['open', P.open], ['closed', P.closed]].forEach(([k, v]) => {
@@ -657,7 +657,7 @@ function activity3d(d, t, opts = {}) {
   o += panel(c, 10, 10, W - 20, H - 20, 20);
   o += cardHeader(c, '3D Contribution Graph', 'commit', narrow ? null : rangeS);
   c.defs.push(`<style>${e.style}</style>`);
-  const body = narrow ? stripAnimations(e.cubes) : e.cubes;
+  const body = stripAnimations(e.cubes); // altura final desde el primer cuadro: el SMIL de la librería arranca plano (2,6) y no respeta prefers-reduced-motion
   o += `<svg x="${pad}" y="${top}" width="${cw}" height="${ch}" viewBox="${vb.join(' ')}">${body}</svg>`;
   // total (esquina superior derecha, vacía en el gráfico)
   if (e.total != null) {

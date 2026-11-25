@@ -28,7 +28,7 @@ test('3D: se conserva solo el gráfico isométrico, la paleta y el total; radar 
   assert.equal(splitTopGroups('<g><g>a</g></g><g>b</g>').length, 2);
 });
 
-test('3D compuesto: XML valido, dark/light, escritorio y movil; el movil no lleva animaciones SMIL', () => {
+test('3D compuesto: XML valido, dark/light, escritorio y movil; ninguno lleva animaciones SMIL (primer cuadro con la altura final)', () => {
   const d = { embeds: embeds(), now: '2026-11-23T12:00:00Z' };
   for (const theme of THEME_IDS) {
     const desk = render('3d', d, theme);
@@ -37,7 +37,7 @@ test('3D compuesto: XML valido, dark/light, escritorio y movil; el movil no llev
     assertWellFormed(mob);
     assert.match(desk, /width="850"/);
     assert.match(mob, /width="420"/);
-    assert.match(desk, /<animate/);
+    assert.doesNotMatch(desk, /<animate/, 'el 3D de escritorio arranca con la altura final');
     assert.doesNotMatch(mob, /<animate/);
     assert.match(desk, /1,266|99/);
     assert.match(desk, /Less/);
