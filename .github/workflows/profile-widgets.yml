@@ -1,0 +1,84 @@
+name: Profile widgets
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-widgets
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: generate-and-publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        continue-on-error: true
+        with:
+          ref: widgets-output
+          path: previous
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Test
+        working-directory: widgets
+        run: npm test
+
+      - name: Generate 3D contribution graph (palette from widgets/3d-settings.json)
+        id: threed
+        continue-on-error: true
+        uses: yoshi389111/github-profile-3d-contrib@7d95e7d4cdc028dd1e1cbd957d65f35efb12ae39 # v0.9.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+          SETTING_JSON: widgets/3d-settings.json
+
+      - name: Generate contribution snake
+        id: snake
+        continue-on-error: true
+        uses: platane/snk/svg-only@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            snake/snake-raw.svg
+
+      - name: Generate widgets (the 3D and the snake are framed with the glass design)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node widgets/src/index.js --out dist --3d-dir profile-3d-contrib --snake snake/snake-raw.svg
+
+      - name: Keep the previous 3D/snake if their generation failed
+        run: |
+          shopt -s nullglob
+          for f in previous/3d-*.svg previous/snake-*.svg; do
+            n=$(basename "$f")
+            if [ ! -s "dist/$n" ]; then cp "$f" "dist/$n"; echo "::warning::kept previous $n"; fi
+          done
+
+      - name: Publish to the widgets-output branch
+        env:
+          PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist
+          git init -q -b widgets-output
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "chore: update profile widgets"
+          git push -q -f "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" widgets-output

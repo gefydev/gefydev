@@ -1,0 +1,112 @@
+{
+  "login": "gefydev",
+  "prs": {
+    "maxRepos": 6,
+    "lastPerRepo": 3
+  },
+  "languages": {
+    "top": 6,
+    "excludeRepos": [],
+    "excludeLanguages": []
+  },
+  "stats": {
+    "excludeRepos": []
+  },
+  "profile": {
+    "name": "GefyDev",
+    "tagline": "Full-Stack Developer • TypeScript and Modern Web",
+    "phrases": [
+      "Astro, React & TypeScript Specialist",
+      "Crafting modern, scalable & accessible platforms",
+      "Open-Source enthusiast",
+      "Software craftsman"
+    ],
+    "links": {
+      "linkedin": "in/genadev",
+      "site": "gefy.dev",
+      "email": "hi@gefy.dev"
+    },
+    "stack": [
+      {
+        "slug": "typescript",
+        "name": "TypeScript",
+        "kind": "Language"
+      },
+      {
+        "slug": "javascript",
+        "name": "JavaScript",
+        "kind": "Language"
+      },
+      {
+        "slug": "astro",
+        "name": "Astro",
+        "kind": "Framework"
+      },
+      {
+        "slug": "react",
+        "name": "React",
+        "kind": "Library"
+      },
+      {
+        "slug": "nextdotjs",
+        "name": "Next.js",
+        "kind": "Framework"
+      },
+      {
+        "slug": "nodedotjs",
+        "name": "Node.js",
+        "kind": "Runtime"
+      },
+      {
+        "slug": "express",
+        "name": "Express",
+        "kind": "Backend"
+      },
+      {
+        "slug": "tailwindcss",
+        "name": "Tailwind",
+        "kind": "Styling"
+      },
+      {
+        "slug": "rust",
+        "name": "Rust",
+        "kind": "Learning"
+      },
+      {
+        "slug": "postgresql",
+        "name": "PostgreSQL",
+        "kind": "Database"
+      },
+      {
+        "slug": "mongodb",
+        "name": "MongoDB",
+        "kind": "Database"
+      },
+      {
+        "slug": "git",
+        "name": "Git",
+        "kind": "Tooling"
+      },
+      {
+        "slug": "github",
+        "name": "GitHub",
+        "kind": "Platform"
+      },
+      {
+        "slug": "docker",
+        "name": "Docker",
+        "kind": "DevOps"
+      },
+      {
+        "slug": "linux",
+        "name": "Linux",
+        "kind": "OS"
+      },
+      {
+        "slug": "vite",
+        "name": "Vite",
+        "kind": "Tooling"
+      }
+    ]
+  }
+}
