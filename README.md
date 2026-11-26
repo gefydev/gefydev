@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-  <a href="https://www.linkedin.com/in/genadev" target="_blank">LinkedIn</a>
+  <a href="https://www.linkedin.com/in/gefydev" target="_blank">LinkedIn</a>
   &nbsp;·&nbsp;
   <a href="https://gefy.dev" target="_blank">Portfolio</a>
   &nbsp;·&nbsp;
