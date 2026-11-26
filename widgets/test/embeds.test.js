@@ -128,6 +128,9 @@ test('workflow: acciones fijadas por SHA, un solo permiso, sin PAT y checkouts s
   assert.match(y, /permissions:\n  contents: write\n/);
   assert.equal((y.match(/^\s{2,}\w+: (read|write)$/gm) || []).length, 1);
   assert.match(y, /SETTING_JSON: widgets\/3d-settings\.json/);
+  // solo main puede escribir la rama que muestra el perfil
+  assert.match(y, /OUTPUT_BRANCH: \$\{\{ github\.ref == 'refs\/heads\/main' && 'widgets-output' \|\| 'widgets-preview' \}\}/);
+  assert.doesNotMatch(y, /\.git" widgets-output/);
   assert.match(y, /snake\/snake-raw\.svg/);
 });
 
