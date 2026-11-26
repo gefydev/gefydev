@@ -89,7 +89,7 @@ export function build(raw, cfg, { avatars = {}, embeds = null, now = new Date(),
 
 async function avatarsFor(raw, cfg) {
   const { prSummary } = compute(raw, cfg);
-  const out = { user: await fetchDataUri(raw.user?.avatarUrl) };
+  const out = {};
   for (const r of prSummary.repos) if (!(r.owner in out)) out[r.owner] = await fetchDataUri(r.avatarUrl);
   return out;
 }

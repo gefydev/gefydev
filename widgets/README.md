@@ -4,7 +4,7 @@ Generador sin dependencias (Node 20+, solo `fetch` y `node:test`) que consulta l
 
 ```
 widgets/
-  config.json        usuario, textos del hero, stack, límites
+  config.json        usuario, stack, límites
   3d-settings.json   paleta de marca (dark/light) para github-profile-3d-contrib
   assets/            logos (simple-icons, CC0)
   src/
@@ -27,7 +27,7 @@ node src/index.js --out dist --save-raw raw.json              # guarda lo consul
 node src/index.js --out dist --fixture raw.json --sample      # con la marca "DATOS DE EJEMPLO"
 ```
 
-Salida: `<widget>-{dark,light}.svg` (escritorio, hasta 850 px), `<widget>-m-{dark,light}.svg` (móvil, 420 px; hero, stack, prs y streak), `stats` y `langs` (420 px, sirven en ambos) y `data.json`.
+Salida: `<widget>-{dark,light}.svg` (escritorio, hasta 850 px), `<widget>-m-{dark,light}.svg` (móvil, 340 px, todos los widgets) y `data.json`. El encabezado es estático (`assets/hero/`, diseño de Davinci) y se publica tal cual.
 
 ## Definición única de los números
 
@@ -58,7 +58,7 @@ Medido en github.com con el README de la rama: las imágenes de `raw.githubuserc
 
 ## Responsive
 
-En móvil un SVG de 850 px se escala a ~0.4 y el texto queda ilegible, así que hero, stack, prs y streak tienen una variante de 420 px. El README elige con `<picture>` y una media query: `(prefers-color-scheme: dark) and (max-width: 600px)`.
+El README elige con `<picture>`: hasta 1011 px de ancho de pantalla usa la variante móvil de 340 px (con la barra lateral de GitHub, a 768 px el README mide 398 px). Entre 1012 y 1279 px se ve la de escritorio reducida y su texto más chico queda por debajo de 11 px. Desde la rama de un PR, el workflow publica en `widgets-preview`; solo `main` escribe `widgets-output`.
 
 ## Cambiar el diseño
 

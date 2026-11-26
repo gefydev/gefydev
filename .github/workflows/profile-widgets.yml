@@ -71,14 +71,17 @@ jobs:
             if [ ! -s "dist/$n" ]; then cp "$f" "dist/$n"; echo "::warning::kept previous $n"; fi
           done
 
-      - name: Publish to the widgets-output branch
+      # Solo main escribe widgets-output (la que muestra el perfil). Un run manual en otra rama publica en
+      # widgets-preview, para revisar sin tocar el perfil real.
+      - name: Publish to the output branch
         env:
           PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT_BRANCH: ${{ github.ref == 'refs/heads/main' && 'widgets-output' || 'widgets-preview' }}
         run: |
           cd dist
-          git init -q -b widgets-output
+          git init -q -b "$OUTPUT_BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -q -m "chore: update profile widgets"
-          git push -q -f "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" widgets-output
+          git push -q -f "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$OUTPUT_BRANCH"

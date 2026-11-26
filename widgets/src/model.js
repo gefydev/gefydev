@@ -8,9 +8,7 @@ export function toGlassData({ cfg, raw, stats, streak, languages, prSummary, ava
       name: p.name || user.name || cfg.login,
       login: cfg.login,
       tagline: p.tagline || '',
-      phrases: (p.phrases || []).slice(0, 4),
-      links: p.links || {},
-      avatarDataUri: avatars.user || null
+      links: p.links || {}
     },
     stats: {
       commits: stats.commitsLastYear,
