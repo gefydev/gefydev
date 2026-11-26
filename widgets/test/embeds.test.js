@@ -36,7 +36,7 @@ test('3D compuesto: XML valido, dark/light, escritorio y movil; ninguno lleva an
     assertWellFormed(desk);
     assertWellFormed(mob);
     assert.match(desk, /width="850"/);
-    assert.match(mob, /width="420"/);
+    assert.match(mob, /width="340"/);
     assert.doesNotMatch(desk, /<animate/, 'el 3D de escritorio arranca con la altura final');
     assert.doesNotMatch(mob, /<animate/);
     assert.match(desk, /1,266|99/);
@@ -190,9 +190,14 @@ test('N1: un embebido hostil no llega al SVG final: build lo omite con aviso y c
   assert.ok(r.files['hero-dark.svg'] && r.files['prs-dark.svg']);
 });
 
-test('R1: el hero móvil usa un icono "in" legible (>= 12) y nada de texto menor a 12 en las variantes móviles de texto', () => {
-  const d = { ...JSON.parse(fs.readFileSync(new URL('./fixtures/sample.json', import.meta.url), 'utf8')) };
-  const hero = render('hero', d, 'dark', { mobile: true });
-  assert.match(hero, /font-size="12" font-weight="800"[^>]*>in</);
-  assert.doesNotMatch(hero, /font-size="9\.5"/);
+test('el encabezado es el estático de Davinci: nombre accesible, sin texto con fuentes, sin animación, seguro y sin el LinkedIn viejo', () => {
+  for (const theme of THEME_IDS) for (const mobile of [false, true]) {
+    const svg = render('hero', {}, theme, { mobile });
+    assertWellFormed(svg);
+    assert.match(svg, mobile ? /width="340"/ : /width="850"/);
+    assert.match(svg, /<title id="ttl">[^<]*Genaro Febbo Yapur[^<]*<\/title>/);
+    assert.doesNotMatch(svg, /<text|font-family|<animate|@keyframes|genadev/);
+    // el filtro mira el contenido (la etiqueta raíz solo trae el xmlns), igual que con el 3D y la snake
+    assert.doesNotThrow(() => assertSafeEmbed(svg.slice(svg.indexOf('>') + 1, svg.lastIndexOf('</svg>')), 'hero'));
+  }
 });

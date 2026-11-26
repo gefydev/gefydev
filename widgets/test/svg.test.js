@@ -16,18 +16,19 @@ test('el diseno de ejemplo de Davinci renderiza en los 2 temas, escritorio y mov
   for (const [w, t, m] of all()) {
     const svg = render(w, sample, t, { sample: true, mobile: m });
     assertWellFormed(svg);
-    assert.match(svg, /DATOS DE EJEMPLO/, `${w}-${t}${m ? '-m' : ''}`);
+    // el encabezado es estático (no muestra datos), así que no lleva la marca de ejemplo
+    if (w !== 'hero') assert.match(svg, /DATOS DE EJEMPLO/, `${w}-${t}${m ? '-m' : ''}`);
     assert.doesNotMatch(render(w, sample, t, { mobile: m }), /DATOS DE EJEMPLO/);
     assert.match(svg, /<title id=/);
     assert.ok(svg.length < 80_000, `${w} pesa ${svg.length}`);
   }
 });
 
-test('anchos: escritorio <= 850 y movil 420, sin recursos externos ni JS', () => {
+test('anchos: escritorio <= 850 y movil 340, sin recursos externos ni JS', () => {
   for (const [w, t, m] of all()) {
     const svg = render(w, sample, t, { mobile: m });
     const width = Number(/<svg[^>]* width="(\d+)"/.exec(svg)[1]);
-    assert.ok(m ? width === 420 : width <= 850, `${w} ${m} ${width}`);
+    assert.ok(m ? width === 340 : width <= 850, `${w} ${m} ${width}`);
     assert.doesNotMatch(svg, /https?:\/\/(?!www\.w3\.org)/, `${w} referencia un recurso externo`);
     assert.doesNotMatch(svg, /@import|foreignObject|<script|<image[^>]*href="http/i);
   }
@@ -35,7 +36,7 @@ test('anchos: escritorio <= 850 y movil 420, sin recursos externos ni JS', () =>
 
 test('datos vacios: todo valido y los textos de estado vacio aparecen', () => {
   const { files, model } = build(emptyRaw(), cfg);
-  assert.equal(Object.keys(files).length, 6 * 2 + 4 * 2 + 1);
+  assert.equal(Object.keys(files).length, 6 * 2 + 6 * 2 + 1);
   for (const [name, content] of Object.entries(files)) if (name.endsWith('.svg')) assertWellFormed(content);
   assert.match(files['prs-dark.svg'], /No pull requests yet/);
   assert.match(files['prs-m-light.svg'], /No pull requests yet/);
@@ -112,7 +113,7 @@ test('modelo: contrato de datos del diseno completo y lenguajes sin Other vacio'
   assert.equal(model.streak.current, 2);
   assert.equal(model.streak.totalFrom, '2020-01-01');
   assert.equal(model.stack.length, 2);
-  assert.equal(toGlassData({ cfg, raw, stats: { prs: { total: 0, merged: 0, open: 0, closed: 0 }, commitsLastYear: 0, issues: 0, stars: 0, contributedTo: 0 }, streak: { current: {}, longest: {} }, languages: { items: [] }, prSummary: { external: { total: 0, merged: 0, open: 0, closed: 0 }, own: { total: 0, merged: 0 }, reposTotal: 0, repos: [] } }).profile.avatarDataUri, null);
+  assert.equal(toGlassData({ cfg, raw, stats: { prs: { total: 0, merged: 0, open: 0, closed: 0 }, commitsLastYear: 0, issues: 0, stars: 0, contributedTo: 0 }, streak: { current: {}, longest: {} }, languages: { items: [] }, prSummary: { external: { total: 0, merged: 0, open: 0, closed: 0 }, own: { total: 0, merged: 0 }, reposTotal: 0, repos: [] } }).profile.avatarDataUri, undefined);
 });
 
 test('avatares: solo hosts de GitHub, tipos de imagen y tamano acotado; si falla devuelve null', async () => {
@@ -138,16 +139,16 @@ const streakData = (over = {}) => ({ ...sample, now: '2026-11-23T12:00:00Z', str
 
 test('racha: el año aparece cuando no es el actual y el total dice desde cuándo', () => {
   assert.deepEqual(streakTexts(render('streak', streakData(), 'dark')), ['Since Sep 21, 2020', 'Nov 22 – Present', 'Apr 27 – May 9, 2024']);
-  assert.deepEqual(streakTexts(render('streak', streakData(), 'dark', { mobile: true })), ["Since Sep 21 '20", 'Nov 22 – Present', "Apr 27 – May 9 '24"]);
+  const mob = render('streak', streakData(), 'dark', { mobile: true });
+  for (const s of ["Since Sep 21 '20", 'Nov 22 – Present', "Apr 27 – May 9 '24"]) assert.ok(mob.includes(`>${s}<`), `falta ${s}`);
   const cross = streakData({ longestFrom: '2023-12-28', longestTo: '2024-01-03', currentFrom: '2026-01-01' });
   assert.deepEqual(streakTexts(render('streak', cross, 'light')), ['Since Sep 21, 2020', 'Jan 1 – Present', 'Dec 28, 2023 – Jan 3, 2024']);
   const mobSvg = render('streak', cross, 'light', { mobile: true });
-  assert.match(mobSvg, />Dec 28 '23 –</);
-  assert.match(mobSvg, />Jan 3 '24</);
+  assert.match(mobSvg, />Dec 28 '23 – Jan 3 '24</);
   assert.doesNotMatch(mobSvg, /…/);
   const sizes = [...mobSvg.matchAll(/<text[^>]*font-size="([\d.]+)"[^>]*>([^<]+)</g)].filter((x) => /^[A-Za-z]/.test(x[2])).map((x) => Number(x[1]));
   assert.ok(sizes.length > 4);
-  assert.ok(Math.min(...sizes) >= 12, `texto móvil de la racha menor a 12: ${Math.min(...sizes)}`);
+  assert.ok(Math.min(...sizes) >= 13, `texto móvil de la racha menor a 13: ${Math.min(...sizes)}`);
   const sameYear = streakData({ longestFrom: '2026-03-03', longestTo: '2026-04-18' });
   assert.equal(streakTexts(render('streak', sameYear, 'dark'))[2], 'Mar 3 – Apr 18');
   for (const t of streakTexts(render('streak', streakData({ totalFrom: null, currentFrom: null, longestFrom: null }), 'dark'))) assert.doesNotMatch(t, /1970|Invalid|NaN/);
@@ -178,5 +179,14 @@ test('primer cuadro: barras y anillos no arrancan vacios, el halo se anima con l
       assert.doesNotMatch(svg, /fGlow\)">(?:(?!<\/g>).)*<\/g><g class="bar">/s, `${id}: el halo queda fuera de .bar`);
       assert.match(svg, /<g class="bar"><g opacity="[\d.]+" filter="url\(#fGlow\)">/, `${id}: el halo va dentro de .bar`);
     }
+  }
+});
+
+test('movil: 340 px y ningun texto por debajo de 13 (11,2 px reales a 293)', () => {
+  for (const w of ['stack', 'stats', 'langs', 'streak', 'prs']) {
+    const svg = render(w, sample, 'dark', { mobile: true });
+    const sizes = [...svg.matchAll(/font-size="([\d.]+)"/g)].map((m) => Number(m[1]));
+    assert.ok(Math.min(...sizes) >= 13, `${w}: ${Math.min(...sizes)}`);
+    assert.match(svg, /\*\{animation:none!important\}/, `${w}: el movil no se anima`);
   }
 });
