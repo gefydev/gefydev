@@ -1,0 +1,323 @@
+{
+  "generatedAt": "2026-11-28T15:29:36.358Z",
+  "definitions": {
+    "prs": "PRs creados por la cuenta en repositorios PUBLICOS de otras personas u organizaciones, en todos los estados. Los PRs en repos propios se informan aparte (prs.ownTotal). Los repos privados nunca entran en PRs, repos, lenguajes ni estrellas.",
+    "commits": "Commits publicos de los ultimos 12 meses (contributionsCollection.totalCommitContributions).",
+    "stars": "Estrellas de los repositorios publicos propios que no son forks.",
+    "languages": "Bytes por lenguaje de los repositorios publicos propios que no son forks.",
+    "streak": "Dias consecutivos con al menos una contribucion en el calendario de GitHub; el dia en curso sin contribuciones aun no corta la racha. ATENCION: ese calendario incluye contribuciones privadas anonimizadas (sin nombres) si el perfil tiene activada \"Include private contributions\"; es el mismo numero que muestra el perfil publico.",
+    "prsRepos": "Repos ajenos ordenados por PRs mergeados (desempate: PR mas reciente), maximo 6, cada uno con sus 3 PRs mas recientes por fecha de creacion."
+  },
+  "model": {
+    "now": "2026-11-28T15:29:36.358Z",
+    "embeds": "[embedded svg]",
+    "profile": {
+      "name": "GefyDev",
+      "login": "gefydev",
+      "tagline": "Full-Stack Developer • TypeScript and Modern Web",
+      "links": {
+        "linkedin": "in/gefydev",
+        "site": "gefy.dev",
+        "email": "hi@gefy.dev"
+      }
+    },
+    "stats": {
+      "commits": 553,
+      "prs": 59,
+      "issues": 3,
+      "stars": 44,
+      "contributedTo": 6
+    },
+    "languages": [
+      {
+        "name": "Rust",
+        "pct": 28.5,
+        "color": "#dea584"
+      },
+      {
+        "name": "TypeScript",
+        "pct": 25.4,
+        "color": "#3178c6"
+      },
+      {
+        "name": "Astro",
+        "pct": 16.2,
+        "color": "#ff5a03"
+      },
+      {
+        "name": "JavaScript",
+        "pct": 15.8,
+        "color": "#f1e05a"
+      },
+      {
+        "name": "HTML",
+        "pct": 7.6,
+        "color": "#e34c26"
+      },
+      {
+        "name": "CSS",
+        "pct": 5.1,
+        "color": "#663399"
+      },
+      {
+        "name": "Other",
+        "pct": 1.3,
+        "color": "#8b93ad"
+      }
+    ],
+    "streak": {
+      "total": 4041,
+      "totalFrom": "2020-09-21",
+      "totalTo": "2026-11-28",
+      "current": 7,
+      "currentFrom": "2026-11-22",
+      "currentTo": "2026-11-28",
+      "longest": 13,
+      "longestFrom": "2024-04-27",
+      "longestTo": "2024-05-09"
+    },
+    "stack": [
+      {
+        "slug": "typescript",
+        "name": "TypeScript",
+        "kind": "Language"
+      },
+      {
+        "slug": "javascript",
+        "name": "JavaScript",
+        "kind": "Language"
+      },
+      {
+        "slug": "astro",
+        "name": "Astro",
+        "kind": "Framework"
+      },
+      {
+        "slug": "react",
+        "name": "React",
+        "kind": "Library"
+      },
+      {
+        "slug": "nextdotjs",
+        "name": "Next.js",
+        "kind": "Framework"
+      },
+      {
+        "slug": "nodedotjs",
+        "name": "Node.js",
+        "kind": "Runtime"
+      },
+      {
+        "slug": "express",
+        "name": "Express",
+        "kind": "Backend"
+      },
+      {
+        "slug": "tailwindcss",
+        "name": "Tailwind",
+        "kind": "Styling"
+      },
+      {
+        "slug": "rust",
+        "name": "Rust",
+        "kind": "Learning"
+      },
+      {
+        "slug": "postgresql",
+        "name": "PostgreSQL",
+        "kind": "Database"
+      },
+      {
+        "slug": "mongodb",
+        "name": "MongoDB",
+        "kind": "Database"
+      },
+      {
+        "slug": "git",
+        "name": "Git",
+        "kind": "Tooling"
+      },
+      {
+        "slug": "github",
+        "name": "GitHub",
+        "kind": "Platform"
+      },
+      {
+        "slug": "docker",
+        "name": "Docker",
+        "kind": "DevOps"
+      },
+      {
+        "slug": "linux",
+        "name": "Linux",
+        "kind": "OS"
+      },
+      {
+        "slug": "vite",
+        "name": "Vite",
+        "kind": "Tooling"
+      }
+    ],
+    "prs": {
+      "total": 59,
+      "merged": 48,
+      "open": 0,
+      "closed": 11,
+      "reposTotal": 6,
+      "ownTotal": 60,
+      "ownMerged": 51,
+      "repos": [
+        {
+          "owner": "xcl-dev",
+          "name": "xcl",
+          "language": "Rust",
+          "langColor": "#dea584",
+          "stars": 8789,
+          "avatarDataUri": "[embedded]",
+          "total": 44,
+          "merged": 37,
+          "open": 0,
+          "closed": 7,
+          "recent": [
+            {
+              "n": 3043,
+              "title": "Shaders: release offline DXIL after each pipeline build",
+              "state": "merged",
+              "at": "2026-11-27T17:23:51Z"
+            },
+            {
+              "n": 2379,
+              "title": "Tests: the bridged mask write checks for no barrier past the first branch",
+              "state": "closed",
+              "at": "2026-11-25T17:28:03Z"
+            },
+            {
+              "n": 2346,
+              "title": "Recompiler: emit globallycoherent on compute memory windows only when needed",
+              "state": "merged",
+              "at": "2026-11-25T16:11:02Z"
+            }
+          ]
+        },
+        {
+          "owner": "REVENGE977",
+          "name": "stremio-enhanced",
+          "language": "TypeScript",
+          "langColor": "#3178c6",
+          "stars": 916,
+          "avatarDataUri": "[embedded]",
+          "total": 10,
+          "merged": 8,
+          "open": 0,
+          "closed": 2,
+          "recent": [
+            {
+              "n": 130,
+              "title": "feat: add option to auto-kill Stremio Service on exit (closes #125)",
+              "state": "merged",
+              "at": "2026-09-02T02:12:38Z"
+            },
+            {
+              "n": 121,
+              "title": "feat: add toggle all plugins button (#104)",
+              "state": "merged",
+              "at": "2026-07-12T14:40:03Z"
+            },
+            {
+              "n": 119,
+              "title": "feat: now stremio enhanced sends subtitle tracks to external players (#113)",
+              "state": "merged",
+              "at": "2026-07-05T23:36:09Z"
+            }
+          ]
+        },
+        {
+          "owner": "REVENGE977",
+          "name": "stremio-enhanced-registry",
+          "language": null,
+          "langColor": null,
+          "stars": 29,
+          "avatarDataUri": "[embedded]",
+          "total": 1,
+          "merged": 1,
+          "open": 0,
+          "closed": 0,
+          "recent": [
+            {
+              "n": 36,
+              "title": "Add plugin: AniListSync (AniList auto-scrobbler)",
+              "state": "merged",
+              "at": "2026-09-02T01:50:13Z"
+            }
+          ]
+        },
+        {
+          "owner": "Fxy6969",
+          "name": "Stremio-Glass-Theme",
+          "language": "JavaScript",
+          "langColor": "#f1e05a",
+          "stars": 140,
+          "avatarDataUri": "[embedded]",
+          "total": 1,
+          "merged": 1,
+          "open": 0,
+          "closed": 0,
+          "recent": [
+            {
+              "n": 45,
+              "title": "fix: remove conflicting opacity on player menu layer",
+              "state": "merged",
+              "at": "2026-05-19T21:11:28Z"
+            }
+          ]
+        },
+        {
+          "owner": "florian-lefebvre",
+          "name": "astro-loading-indicator",
+          "language": "Astro",
+          "langColor": "#ff5a03",
+          "stars": 112,
+          "avatarDataUri": "[embedded]",
+          "total": 2,
+          "merged": 1,
+          "open": 0,
+          "closed": 1,
+          "recent": [
+            {
+              "n": 15,
+              "title": "chore(deps): update astro to version 5",
+              "state": "merged",
+              "at": "2024-12-06T22:02:51Z"
+            },
+            {
+              "n": 14,
+              "title": "chore(deps): update astro to version 5",
+              "state": "closed",
+              "at": "2024-12-06T21:57:22Z"
+            }
+          ]
+        },
+        {
+          "owner": "oxc-project",
+          "name": "oxc-resolver",
+          "language": "Rust",
+          "langColor": "#dea584",
+          "stars": 307,
+          "avatarDataUri": "[embedded]",
+          "total": 1,
+          "merged": 0,
+          "open": 0,
+          "closed": 1,
+          "recent": [
+            {
+              "n": 1193,
+              "title": "fix(tsconfig): support node subpath imports in extends field",
+              "state": "closed",
+              "at": "2026-05-31T18:00:06Z"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

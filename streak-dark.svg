@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="190" viewBox="0 0 850 190" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">Contribution streak</title><desc id="dsc">Total 4041, current streak 7 days, longest 13 days</desc>
+<defs>
+<style>
+.s{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,'Liberation Sans','DejaVu Sans',sans-serif}.m{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono','DejaVu Sans Mono',monospace}.n{font-variant-numeric:tabular-nums}
+@keyframes d1{0%,100%{transform:translate(0,0)}50%{transform:translate(34px,16px)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,20px)}}
+@keyframes d3{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-22px)}}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes sw{0%{transform:translateX(-900px)}60%,100%{transform:translateX(900px)}}
+@keyframes ring{from{stroke-dashoffset:calc(var(--off) + (var(--len) - var(--off)) * .3)}to{stroke-dashoffset:var(--off)}}
+@keyframes grow{from{transform:scaleX(.72)}to{transform:scaleX(1)}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.o1{animation:d1 16s ease-in-out infinite}.o2{animation:d2 20s ease-in-out infinite}.o3{animation:d3 24s ease-in-out infinite}
+.fl1{animation:fl 6s ease-in-out infinite}.fl2{animation:fl 7.5s ease-in-out -2s infinite}.fl3{animation:fl 5.5s ease-in-out -4s infinite}
+.sw{animation:sw 9s ease-in-out infinite}
+.bar{transform-box:fill-box;transform-origin:left center;animation:grow 1.2s cubic-bezier(.2,.7,.2,1) both}
+.cur{animation:blink 1s steps(1) infinite}
+@media (prefers-reduced-motion:reduce){.o1,.o2,.o3,.fl1,.fl2,.fl3,.sw,.bar,.cur{animation:none}}
+</style>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#080c18" stop-opacity="1"/><stop offset="1" stop-color="#0f1631" stop-opacity="1"/></linearGradient>
+<linearGradient id="gefy" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0db7b9" stop-opacity="1"/><stop offset="0.5" stop-color="#7aa2f7" stop-opacity="1"/><stop offset="1" stop-color="#a78bfa" stop-opacity="1"/></linearGradient>
+<linearGradient id="fire" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb972" stop-opacity="1"/><stop offset="1" stop-color="#ff6b8b" stop-opacity="1"/></linearGradient>
+<linearGradient id="gFill" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.105"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.035"/></linearGradient>
+<linearGradient id="sFill" x1="0" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.06"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.025"/></linearGradient>
+<linearGradient id="gStroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/><stop offset="0.45" stop-color="#ffffff" stop-opacity="0.07"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.22"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+<linearGradient id="plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#222b55" stop-opacity="1"/><stop offset="1" stop-color="#10163a" stop-opacity="1"/></linearGradient>
+<linearGradient id="vline" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0.22000000000000003"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+<pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#fff" opacity="0.07"/></pattern>
+<filter id="fBig" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="40"/></filter>
+<filter id="fSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+<filter id="fGlow" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="3.2"/></filter>
+<filter id="fNoise" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1 0 0 0 .55 -.2"/></filter>
+<clipPath id="sc"><rect width="850" height="190" rx="20"/></clipPath>
+<clipPath id="pc1"><rect x="10" y="10" width="830" height="170" rx="20"/></clipPath>
+<style>.rg{--len:251.3;--off:116;stroke-dasharray:251.3;stroke-dashoffset:116;animation:ring 1.6s cubic-bezier(.2,.7,.2,1) both}</style>
+</defs>
+<rect width="850" height="190" rx="20" fill="url(#bg)"/>
+<g clip-path="url(#sc)"><g filter="url(#fBig)"><circle class="o1" cx="130" cy="100" r="130" fill="#8b5cf6" opacity="0.6"/><circle class="o2" cx="425" cy="190" r="110" fill="#f472b6" opacity="0.3"/><circle class="o3" cx="720" cy="80" r="150" fill="#0db7b9" opacity="0.6"/></g><rect width="850" height="190" fill="url(#dots)"/></g>
+<rect x=".5" y=".5" width="849" height="189" rx="19.5" fill="none" stroke="#ffffff" stroke-opacity="0.14"/><rect x="14" y="20" width="822" height="166" rx="20" fill="#000000" opacity="0.45" filter="url(#fSoft)"/>
+<rect x="10" y="10" width="830" height="170" rx="20" fill="#060916" fill-opacity="0.6"/><rect x="10" y="10" width="830" height="170" rx="20" fill="url(#gFill)"/>
+<g clip-path="url(#pc1)"><rect x="10" y="10" width="830" height="170" filter="url(#fNoise)" opacity="0.42"/><rect x="30" y="11" width="790" height="1" fill="url(#shine)"/></g>
+<rect x="10.5" y="10.5" width="829" height="169" rx="19.5" fill="none" stroke="url(#gStroke)"/><rect x="286.6666666666667" y="38" width="1" height="114" fill="url(#vline)"/><rect x="563.3333333333334" y="38" width="1" height="114" fill="url(#vline)"/><text x="148.33333333333334" y="42" class="s " font-size="11" font-weight="700" fill="#aab4d4" text-anchor="middle" letter-spacing=".12em">TOTAL CONTRIBUTIONS</text><text x="148.33333333333334" y="112" class="s n" font-size="48" font-weight="800" letter-spacing="-1.5" fill="#f2f5ff" text-anchor="middle">4,041</text><text x="148.33333333333334" y="150" class="s " font-size="12.5" font-weight="400" fill="#c9d1ea" text-anchor="middle">Since Sep 21, 2020</text><text x="425" y="42" class="s " font-size="11" font-weight="700" fill="#aab4d4" text-anchor="middle" letter-spacing=".12em">CURRENT STREAK</text><circle cx="425" cy="98" r="40" fill="none" stroke="#ffffff" stroke-opacity="0.14" stroke-width="7"/><g transform="rotate(-90 425 98)"><circle class="rg" cx="425" cy="98" r="40" fill="none" stroke="url(#fire)" stroke-width="7" stroke-linecap="round" opacity=".5" filter="url(#fGlow)"/><circle class="rg" cx="425" cy="98" r="40" fill="none" stroke="url(#fire)" stroke-width="7" stroke-linecap="round"/></g><text x="425" y="104" class="s n" font-size="30" font-weight="800" fill="#f2f5ff" text-anchor="middle">7</text><text x="425" y="119" class="s " font-size="10.5" font-weight="600" fill="#aab4d4" text-anchor="middle">days</text><circle cx="425" cy="58" r="11" fill="url(#fire)"/><path transform="translate(418.5 50.5) scale(0.8125)" d="M8 0c.55 2.6-.9 3.9-2.3 5.4C4.3 6.8 3 8.2 3 10.2A5 5 0 0 0 13 10.2c0-1.8-.9-3.2-1.8-4.3-.3 1.2-1 1.9-1.8 2.1.6-2.7-.2-5.7-1.4-8Z" fill="#fff" /><text x="425" y="164" class="s " font-size="12.5" font-weight="400" fill="#c9d1ea" text-anchor="middle">Nov 22 – Present</text><text x="701.6666666666667" y="42" class="s " font-size="11" font-weight="700" fill="#aab4d4" text-anchor="middle" letter-spacing=".12em">LONGEST STREAK</text><text x="701.6666666666667" y="112" class="s n" font-size="48" font-weight="800" letter-spacing="-1.5" fill="#f2f5ff" text-anchor="middle">13<tspan font-size="16" font-weight="600" fill="#aab4d4" letter-spacing="0"> days</tspan></text><text x="701.6666666666667" y="150" class="s " font-size="12.5" font-weight="400" fill="#c9d1ea" text-anchor="middle">Apr 27 – May 9, 2024</text>
+</svg>
